@@ -3,14 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package projectlabirynt;
+package progettolabirynt;
 
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -21,10 +23,14 @@ import javafx.stage.Stage;
 public class ProgettoLabirynt extends Application {
     private Canvas canvas;
     
+    public static void main(String[] args) 
+    {
+        launch(args);
+    }
+    
     @Override
     public void start(Stage stage) throws Exception {
-        //Parent root = FXMLLoader.load(getClass().getResource("MainApp.fxml"));
-        
+            
         /* dichiara canvas   */
         stage.setTitle( "Gioco" );
 
@@ -34,29 +40,34 @@ public class ProgettoLabirynt extends Application {
 
         canvas = new Canvas( 800, 500 );
         root.getChildren().add( canvas );
-     
-        drawMap();
-        drawPlayer();
         
-        Rectangle a = drawRect(150, 50);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        
         Rectangle b = drawRect(200, 300);
-        
-        root.getChildren().add( a );
         root.getChildren().add( b );
+        stage.show();
         
-        System.out.println(isColliding(a, b));
+        // update stuff
+        LongValue lastNanoTime = new LongValue( System.nanoTime() );
         
-        while(isColliding(a, b) == false){
-            fall(a);
-            stage.show();
-        }
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        launch(args);
+        Sprite a = new Sprite(150, 50, 0, 0, 100, 100);
+        
+        a.render(gc);
+        new AnimationTimer()
+        {
+            @Override
+            public void handle(long currentNanoTime)
+            {
+                double elapsedTime = (currentNanoTime - lastNanoTime.value) / 1000000000.0;
+                lastNanoTime.value = currentNanoTime;            
+                
+                a.setVelocity(0, 0);
+                
+                a.update(elapsedTime);
+            }
+        };
+        
+        
     }
 
     private void drawMap() {
