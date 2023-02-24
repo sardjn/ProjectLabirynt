@@ -28,13 +28,14 @@ import javafx.stage.Stage;
  * @author rdngrl05a04h501o
  */
 public class ProgettoLabirynt extends Application {
-    private double multiplier = 4;
+    private double multiplier = 4.25;
     private double dimensions[] = getDimensions();
-    private double bordersX = 50 * multiplier;
+    private double bordersX = 70 * multiplier;
+    private double bordersY = 5 * multiplier;
     
     private Canvas canvas;
     private double width = dimensions[0] + bordersX*2;
-    private double height = dimensions[1];
+    private double height = dimensions[1] + bordersY*2;
     
     public static void main(String[] args) 
     {
@@ -97,11 +98,11 @@ public class ProgettoLabirynt extends Application {
         
         //gestione sprite per pacman
         Sprite pacman = new Sprite();
-        Image[] imageEspl = new Image[3];
-        imageEspl[0] = new Image("progettolabirynt/images/pacman1.png", 50, 50, false, false);
-        imageEspl[1] = new Image("progettolabirynt/images/pacman2.png", 50, 50, false, false);
-        imageEspl[2] = new Image("progettolabirynt/images/pacman3.png", 50, 50, false, false);
-        pacman.setMultipleImage(imageEspl);
+        Image[] pacmanSprites = new Image[3];
+        pacmanSprites[0] = new Image("progettolabirynt/images/pacman1.png", 10*multiplier, 10*multiplier, false, false);
+        pacmanSprites[1] = new Image("progettolabirynt/images/pacman2.png", 10*multiplier, 10*multiplier, false, false);
+        pacmanSprites[2] = new Image("progettolabirynt/images/pacman3.png", 10*multiplier, 10*multiplier, false, false);
+        pacman.setMultipleImage(pacmanSprites);
         
         
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -110,7 +111,7 @@ public class ProgettoLabirynt extends Application {
         //creazione sfondo
         Sprite bg = new Sprite();
         bg.setImage("progettolabirynt/images/bg-blue-empty.png", multiplier);
-        bg.setPosition(0, 0);
+        bg.setPosition(bordersX, bordersY);
         
         
         // font
@@ -130,9 +131,43 @@ public class ProgettoLabirynt extends Application {
             @Override
             public void handle(long currentNanoTime)
             {
+                boolean isPacmanWeak = true; // when pacman is not able to eat ghosts
+                /**
+                 * if true:
+                 *   -> ghosts can eat pacman
+                 *      ghosts are faster
+                 *      ghosts are immune
+                 * 
+                 *   -> pacman is not immune
+                 *      pacman is slower
+                 */
+                
                 double elapsedTime = (currentNanoTime - lastNanoTime.value) / 1000000000.0;
                 lastNanoTime.value = currentNanoTime;
                 
+                double vel = 270;
+                
+                if (input.contains("LEFT")){
+                    pacman.setVelocity(-vel, 0);
+                    pacman.setImage(pacmanSprites[0]);
+                }
+                    
+                if (input.contains("RIGHT")){
+                    pacman.setVelocity(vel, 0);
+                    pacman.setImage(pacmanSprites[0]);
+                }
+                    
+                if (input.contains("UP")){
+                     pacman.setVelocity(0,-vel);
+                }
+                   
+                if (input.contains("DOWN")){
+                    pacman.setVelocity(0,vel);
+                }
+                
+                
+                pacman.render(gc);
+                pacman.update(elapsedTime);
                 bg.render(gc);
             }
         }.start();
