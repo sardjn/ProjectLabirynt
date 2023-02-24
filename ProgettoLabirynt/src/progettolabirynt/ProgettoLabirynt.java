@@ -118,7 +118,8 @@ public class ProgettoLabirynt extends Application {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, width, height);
-        //creazione sfondo
+        
+        //creazione mappa
         Sprite bg = new Sprite();
         bg.setImage("progettolabirynt/images/bg-blue-empty.png", multiplier);
         bg.setPosition(bordersX, bordersY);
@@ -131,8 +132,13 @@ public class ProgettoLabirynt extends Application {
         gc.setStroke( Color.BLACK );
         gc.setLineWidth(1);
         
+        // background color black
+        Sprite background = new Sprite();
+        background.setImage("progettolabirynt/images/background.png", multiplier);
+        background.setPosition(0, 0);
         
         // start the game with music, then starts the gameplay
+        background.render(gc);
         bg.render(gc);
         pacman.setImage(pacmanSprites[1]);
         pacman.render(gc);
@@ -183,9 +189,8 @@ public class ProgettoLabirynt extends Application {
                     pacman.setVelocity(0,vel);
                 }
                 
-                
+                background.render(gc);
                 bg.render(gc);
-                
                 // aggiorna il pacman
                 if(isPacmanAlive){
                     pacman.render(gc);
