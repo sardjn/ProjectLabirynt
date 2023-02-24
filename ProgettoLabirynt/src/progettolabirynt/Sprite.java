@@ -3,6 +3,9 @@ package progettolabirynt;
 import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.PixelReader;
+import javafx.scene.media.AudioClip;
+import javafx.scene.paint.Color;
 
 public class Sprite
 {
@@ -39,6 +42,13 @@ public class Sprite
         return termina;
     }
     
+    public double getWidth(){
+        return this.width;
+    }
+    
+    public double getHeight(){
+        return this.height;
+    }
     
 
     public void setImage(Image i)
@@ -55,8 +65,6 @@ public class Sprite
         image=multipleImage[0];
     }
     
-    
-
     public void setImage(String filename, double multiplierResize)
     {
         Image tmp = new Image(filename);
@@ -64,6 +72,10 @@ public class Sprite
         double h = tmp.getHeight();
         Image i = new Image(filename, w*multiplierResize, h*multiplierResize, false, false);
         setImage(i);
+    }
+    
+    public Image getImage(){
+        return image;
     }
 
     public void setPosition(double x, double y)
@@ -76,6 +88,11 @@ public class Sprite
     {
         velocityX = x;
         velocityY = y;
+    }
+    
+    public void stop(){
+        velocityX = 0;
+        velocityY = 0;
     }
 
     /**

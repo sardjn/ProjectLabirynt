@@ -1,7 +1,9 @@
-/*
+/**
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
+ *
+ * sounds from: https://downloads.khinsider.com/game-soundtracks/album/pac-man-game-sound-effects
  */
 package progettolabirynt;
 
@@ -16,9 +18,11 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -32,6 +36,7 @@ public class ProgettoLabirynt extends Application {
     private double dimensions[] = getDimensions();
     private double bordersX = 70 * multiplier;
     private double bordersY = 5 * multiplier;
+    private double vel = 65*multiplier;
     
     private Canvas canvas;
     private double width = dimensions[0] + bordersX*2;
@@ -44,7 +49,7 @@ public class ProgettoLabirynt extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-            
+    
         /* dichiara canvas   */
         stage.setTitle( "Gioco" );
 
@@ -54,7 +59,11 @@ public class ProgettoLabirynt extends Application {
 
         canvas = new Canvas( width, height );
         root.getChildren().add( canvas );
-
+        stage.setResizable(false);
+        
+        
+        // sound loader per gli effetti (suoni)
+        SoundPlayer soundPlayer = new SoundPlayer();
         
         
         // ArrayList contenente gli input da tastiera (queue)
@@ -103,6 +112,7 @@ public class ProgettoLabirynt extends Application {
         pacmanSprites[1] = new Image("progettolabirynt/images/pacman2.png", 10*multiplier, 10*multiplier, false, false);
         pacmanSprites[2] = new Image("progettolabirynt/images/pacman3.png", 10*multiplier, 10*multiplier, false, false);
         pacman.setMultipleImage(pacmanSprites);
+        pacman.setPosition((int)(width/2 - pacman.getWidth()*2), (int)(height/2 + 11*multiplier));
         
         
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -122,6 +132,16 @@ public class ProgettoLabirynt extends Application {
         gc.setLineWidth(1);
         
         
+        // start the game with music, then starts the gameplay
+        bg.render(gc);
+        pacman.setImage(pacmanSprites[1]);
+        pacman.render(gc);
+        
+        
+        // colori dei muri della mappa
+        Color blue = Color.web("#1300bf");
+        Color darkBlue = Color.web("#06003f");
+        
         // values and stuff
         LongValue lastNanoTime = new LongValue( System.nanoTime() );
         IntValue score = new IntValue(0);
@@ -132,6 +152,7 @@ public class ProgettoLabirynt extends Application {
             public void handle(long currentNanoTime)
             {
                 boolean isPacmanWeak = true; // when pacman is not able to eat ghosts
+                boolean isPacmanAlive = true;
                 /**
                  * if true:
                  *   -> ghosts can eat pacman
@@ -141,20 +162,17 @@ public class ProgettoLabirynt extends Application {
                  *   -> pacman is not immune
                  *      pacman is slower
                  */
-                
+                    
                 double elapsedTime = (currentNanoTime - lastNanoTime.value) / 1000000000.0;
                 lastNanoTime.value = currentNanoTime;
                 
-                double vel = 270;
                 
                 if (input.contains("LEFT")){
                     pacman.setVelocity(-vel, 0);
-                    pacman.setImage(pacmanSprites[0]);
                 }
                     
                 if (input.contains("RIGHT")){
                     pacman.setVelocity(vel, 0);
-                    pacman.setImage(pacmanSprites[0]);
                 }
                     
                 if (input.contains("UP")){
@@ -166,17 +184,18 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 
-                pacman.render(gc);
-                pacman.update(elapsedTime);
                 bg.render(gc);
+                
+                // aggiorna il pacman
+                if(isPacmanAlive){
+                    pacman.render(gc);
+                }
+                pacman.update(elapsedTime);
             }
         }.start();
         
         stage.show();
     }
-    
-    
-    
     
     // get dimension for the window
     private double[] getDimensions(){
@@ -185,18 +204,5 @@ public class ProgettoLabirynt extends Application {
         arr[0] = tmp.getWidth() * multiplier;
         arr[1] = tmp.getHeight() * multiplier;
         return arr;
-    }
-    
-    
-    // controlla collisione
-    private boolean isColliding(Rectangle a, Rectangle b){
-        double rangeX = a.getX() + a.getWidth();
-        double rangeY = a.getY() + a.getHeight();
-        
-        if(b.getX() <= rangeX && b.getX() >= a.getX())
-            if(b.getY() <= rangeY && b.getY() >= a.getY())
-                return true;
-            
-        return false;
     }
 }
