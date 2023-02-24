@@ -1,84 +1,121 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package progettolabirynt;
 
-import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.shape.Rectangle;
+import javafx.geometry.Rectangle2D;
 
-/**
- *
- * @author HP
- */
-public class Sprite {
-    
-    private Rectangle sprite;
-    private boolean moveSprite = false;
+public class Sprite
+{
+    private Image image;
+    //array che prevede più immagini sprite per simulare il movimento
+    private Image[] multipleImage;
+    private boolean movimentoImage=false;
+    private int numImmagine;
+    private boolean termina=false;
     private double positionX;
     private double positionY;    
     private double velocityX;
     private double velocityY;
     private double width;
     private double height;
-    private boolean end = false;
-    
-    
-    public Sprite(double positionX, double positionY, double velocityX, double velocityY, double width, double height){
-        setSprite(positionX, positionY, width, height);  
-        this.velocityX = velocityX;
-        this.velocityY = velocityY;
+
+    public Sprite()
+    {
+        positionX = 0;
+        positionY = 0;    
+        velocityX = 0;
+        velocityY = 0;
     }
-    
-    public double getPositionX(){
+
+    public double getPositionX() {
         return positionX;
     }
 
-    public double getPositionY(){
+    public double getPositionY() {
         return positionY;
     }
 
-    public boolean isEnd(){
-        return end;
+    public boolean isTermina() {
+        return termina;
     }
     
-    private void setSprite(double posX, double posY, double width, double height){
-        sprite.setX(posX);
-        sprite.setY(posY);
-        sprite.setWidth(width);
-        sprite.setHeight(height);
+    
+
+    public void setImage(Image i)
+    {
+        image = i;
+        width = i.getWidth();
+        height = i.getHeight();
+    }
+
+    public void setMultipleImage(Image[] multipleImage) {
+        this.multipleImage = multipleImage;
+        movimentoImage=true;
+        numImmagine=0;
+        image=multipleImage[0];
     }
     
-    public void setPosition(double x, double y){
+    
+
+    public void setImage(String filename, double multiplierResize)
+    {
+        Image tmp = new Image(filename);
+        double w = tmp.getWidth();
+        double h = tmp.getHeight();
+        Image i = new Image(filename, w*multiplierResize, h*multiplierResize, false, false);
+        setImage(i);
+    }
+
+    public void setPosition(double x, double y)
+    {
         positionX = x;
         positionY = y;
     }
 
-    public void setVelocity(double x, double y){
+    public void setVelocity(double x, double y)
+    {
         velocityX = x;
         velocityY = y;
     }
 
-    public void addVelocity(double x, double y){
+    public void addVelocity(double x, double y)
+    {
         velocityX += x;
         velocityY += y;
     }
-    
-    public void render(GraphicsContext gc){
-        gc.fillRect( width, height, positionX, positionY );
+
+    public void update(double time)
+    {
+        positionX += velocityX * time;
+        positionY += velocityY * time;
+        if(movimentoImage){
+            numImmagine++;
+            if(numImmagine>=multipleImage.length){
+                numImmagine=0;
+                termina=true;
+            }
+            image=multipleImage[numImmagine];
+        }
     }
-    
-    public boolean intersects(Sprite s){
+
+    public void render(GraphicsContext gc)
+    {
+        gc.drawImage( image, positionX, positionY );
+    }
+
+    public Rectangle2D getBoundary()
+    {
+        return new Rectangle2D(positionX,positionY,width,height);
+    }
+
+    public boolean intersects(Sprite s)
+    {
         return s.getBoundary().intersects( this.getBoundary() );
     }
     
-    public Rectangle2D getBoundary(){
-        return new Rectangle2D(positionX,positionY,width,height);
-    }
-    
-    public void update(double time){
-        positionX += velocityX * time;
-        positionY += velocityY * time;
+    public String toString()
+    {
+        return " Position: [" + positionX + "," + positionY + "]" 
+        + " Velocity: [" + velocityX + "," + velocityY + "]";
     }
 }
