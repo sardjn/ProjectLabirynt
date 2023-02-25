@@ -35,6 +35,7 @@ public class ProgettoLabirynt extends Application {
     
     private boolean NOCLIP = false;
     private boolean ignore = false;
+    private boolean ignoreRule = false;
     
     private double multiplier = 4.25;
     private double dimensions[] = getDimensions();
@@ -45,6 +46,11 @@ public class ProgettoLabirynt extends Application {
     private Canvas canvas;
     private double width = dimensions[0] + bordersX*2;
     private double height = dimensions[1] + bordersY*2;
+    
+    // coordinata (Y) delle due uscite, da cui pacman si teletrasporta
+    private double exitY = 102 * multiplier + bordersY;
+    private double dimExit = 12 * multiplier;
+    
     
     public static void main(String[] args) 
     {
@@ -207,31 +213,35 @@ public class ProgettoLabirynt extends Application {
                     pacman.render(gc);
                 }
                 
-                
-                //int res = isPacmanOut(pacman, bg);
                 int collision = isPacmanColliding(pacman, bg);
-                /*if(res != -1){
+                int res = isPacmanOut(pacman, bg);
+                
+                if(!ignore){
+                    if(collision != -1){
+                        if(pacman.getPositionY() >= exitY-10*multiplier && pacman.getPositionY() <= exitY+10*multiplier){ // tengo i multiplier solo per i test
+                            ignore = true;
+                        }else{
+                            ignore = false;
+                            riposiziona(pacman, collision);
+                        }
+                    }
+                }else{
                     if(res == 0){
                         teleport(pacman, 0, bg.getWidth());
-                        ignore = true;
-                        pacman.setVelocity(-speed, 0);
                     }else if(res == 1){
                         teleport(pacman, 1, bg.getWidth());
-                        pacman.setVelocity(speed, 0);
-                        ignore = true;
                     }
-                    riposiziona(pacman, res);
-                }else{
-                    ignore = false;
-                }*/
+                    
+                    if(isPacmanColliding(pacman, bg) == -1){
+                        ignore = false;
+                    }
+                }
                 
-                if(collision != -1)
-                    riposiziona(pacman, collision);
                 
                 pacman.update(elapsedTime);
                 
-                rBorder.render(gc);
-                lBorder.render(gc);
+                //rBorder.render(gc);
+                //lBorder.render(gc);
             }
         }.start();
         
@@ -239,12 +249,15 @@ public class ProgettoLabirynt extends Application {
     }
     
     private void teleport(Sprite a, int x, double distance){
+        
         switch(x){
             case 0:
                 a.setPosition(a.getPositionX()-distance-a.getWidth()*1.5, a.getPositionY());
+                a.setVelocity(-speed, 0);
                 break;
             case 1:
-                a.setPosition(a.getPositionX()+distance+a.getWidth()*1.49, a.getPositionY());
+                a.setPosition(a.getPositionX()+distance+a.getWidth()*1.5, a.getPositionY());
+                a.setVelocity(speed, 0);
                 break;
             default:
                 break;
