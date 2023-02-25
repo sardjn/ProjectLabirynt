@@ -32,11 +32,15 @@ import javafx.stage.Stage;
  * @author rdngrl05a04h501o
  */
 public class ProgettoLabirynt extends Application {
+    
+    private boolean NOCLIP = false;
+    private boolean ignore = false;
+    
     private double multiplier = 4.25;
     private double dimensions[] = getDimensions();
     private double bordersX = 70 * multiplier;
     private double bordersY = 5 * multiplier;
-    private double vel = 65*multiplier;
+    private double speed = 65*multiplier;
     
     private Canvas canvas;
     private double width = dimensions[0] + bordersX*2;
@@ -124,6 +128,13 @@ public class ProgettoLabirynt extends Application {
         bg.setImage("progettolabirynt/images/bg-blue-empty.png", multiplier);
         bg.setPosition(bordersX, bordersY);
         
+        Sprite rBorder = new Sprite();
+        rBorder.setImage("progettolabirynt/images/bg-borders.png", multiplier);
+        rBorder.setPosition(0, 0);
+        Sprite lBorder = new Sprite();
+        lBorder.setImage("progettolabirynt/images/bg-borders.png", multiplier);
+        lBorder.setPosition(width-bordersX, 0);
+        
         
         // font
         Font theFont = Font.font( "Helvetica", FontWeight.BOLD, 24 );
@@ -174,19 +185,19 @@ public class ProgettoLabirynt extends Application {
                 
                 
                 if (input.contains("LEFT")){
-                    pacman.setVelocity(-vel, 0);
+                    pacman.setVelocity(-speed, 0);
                 }
                     
                 if (input.contains("RIGHT")){
-                    pacman.setVelocity(vel, 0);
+                    pacman.setVelocity(speed, 0);
                 }
                     
                 if (input.contains("UP")){
-                     pacman.setVelocity(0,-vel);
+                     pacman.setVelocity(0,-speed);
                 }
                    
                 if (input.contains("DOWN")){
-                    pacman.setVelocity(0,vel);
+                    pacman.setVelocity(0,speed);
                 }
                 
                 background.render(gc);
@@ -195,19 +206,116 @@ public class ProgettoLabirynt extends Application {
                 if(isPacmanAlive){
                     pacman.render(gc);
                 }
+                
+                
+                //int res = isPacmanOut(pacman, bg);
+                int collision = isPacmanColliding(pacman, bg);
+                /*if(res != -1){
+                    if(res == 0){
+                        teleport(pacman, 0, bg.getWidth());
+                        ignore = true;
+                        pacman.setVelocity(-speed, 0);
+                    }else if(res == 1){
+                        teleport(pacman, 1, bg.getWidth());
+                        pacman.setVelocity(speed, 0);
+                        ignore = true;
+                    }
+                    riposiziona(pacman, res);
+                }else{
+                    ignore = false;
+                }*/
+                
+                if(collision != -1)
+                    riposiziona(pacman, collision);
+                
                 pacman.update(elapsedTime);
+                
+                rBorder.render(gc);
+                lBorder.render(gc);
             }
         }.start();
         
         stage.show();
     }
     
+    private void teleport(Sprite a, int x, double distance){
+        switch(x){
+            case 0:
+                a.setPosition(a.getPositionX()-distance-a.getWidth()*1.5, a.getPositionY());
+                break;
+            case 1:
+                a.setPosition(a.getPositionX()+distance+a.getWidth()*1.49, a.getPositionY());
+                break;
+            default:
+                break;
+        }
+        
+        System.out.println(a.getPositionX());
+    }
+    
+    private void riposiziona(Sprite a, int x){
+        
+        if(!ignore){
+            a.setVelocity(0, 0);
+        }
+        switch(x){
+            case 0:
+                a.setPosition(a.getPositionX()-1, a.getPositionY());
+                break;
+            case 1:
+                a.setPosition(a.getPositionX()+1, a.getPositionY());
+                break;
+            case 2:
+                a.setPosition(a.getPositionX(), a.getPositionY()+1);
+                break;
+            case 3:
+                a.setPosition(a.getPositionX(), a.getPositionY()-1);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    private int isPacmanOut(Sprite a, Sprite b){
+        
+        double lBorder = b.getPositionX();
+        double rBorder = b.getWidth() + b.getPositionX();
+        
+        if(a.getPositionX()+a.getWidth()*1.5 < lBorder)
+            return 1;
+        if(a.getPositionX() > rBorder)
+            return 0;
+        
+        return -1;
+    }
+    
+    private int isPacmanColliding(Sprite a, Sprite b){
+        
+        double lBorder = b.getPositionX();
+        double rBorder = b.getWidth() + b.getPositionX();
+        double uBorder = b.getPositionY();
+        double bBorder = b.getHeight() + b.getPositionY();
+        
+        if(a.getPositionX()+a.getWidth() > rBorder)
+            return 0;
+        if(a.getPositionX() < lBorder)
+            return 1;
+        if(a.getPositionY() < uBorder)
+            return 2;
+        if(a.getPositionY()+a.getHeight() > bBorder)
+            return 3;
+        
+        return -1;
+    }
+    
     // get dimension for the window
     private double[] getDimensions(){
+        
         Image tmp = new Image("progettolabirynt/images/bg-blue-empty.png");
         double arr[] = new double[2];
         arr[0] = tmp.getWidth() * multiplier;
         arr[1] = tmp.getHeight() * multiplier;
+        
         return arr;
     }
 }
