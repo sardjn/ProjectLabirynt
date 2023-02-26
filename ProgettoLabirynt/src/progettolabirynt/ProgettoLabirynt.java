@@ -35,19 +35,18 @@ public class ProgettoLabirynt extends Application {
     
     private boolean NOCLIP = false;
     
-    private double multiplier = 4.25;
-    private double dimensions[] = getDimensions();
-    private double bordersX = 70 * multiplier;
-    private double bordersY = 5 * multiplier;
-    private double speed = 50*multiplier;
+    private final double multiplier = 4.25;
+    private final double dimensions[] = getDimensions();
+    private final double bordersX = 70 * multiplier;
+    private final double bordersY = 5 * multiplier;
+    private final double speed = 50*multiplier;
     
     private Canvas canvas;
-    private double width = dimensions[0] + bordersX*2;
-    private double height = dimensions[1] + bordersY*2;
+    private final double width = dimensions[0] + bordersX*2;
+    private final double height = dimensions[1] + bordersY*2;
     
     // coordinata (Y) delle due uscite, da cui pacman si teletrasporta
-    private double exitY = 102 * multiplier + bordersY;
-    private double dimExit = 12 * multiplier;
+    private final double exitY = 102 * multiplier + bordersY;
     
     
     /*
@@ -236,6 +235,7 @@ public class ProgettoLabirynt extends Application {
                 int collision = isPacmanColliding(pacman, bg);
                 int direction = latest[0];
                 int wait = latest[1];
+                double mult = 3;
                 
                 
                 // check if pacman is in the tunnel

@@ -50,6 +50,13 @@ public class Sprite
         return this.height;
     }
     
+    public double getVelocityX(){
+        return this.velocityX;
+    }
+    
+    public double getVelocityY(){
+        return this.velocityY;
+    }
 
     public void setImage(Image i)
     {
