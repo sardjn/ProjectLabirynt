@@ -234,46 +234,62 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 int collision = isPacmanColliding(pacman, bg);
-                // int res = isPacmanOut(pacman, bg);  <-- probably useless
+                int direction = latest[0];
+                int wait = latest[1];
                 
                 
                 // check if pacman is in the tunnel
                 if(pacman.getPositionY() >= exitY-10*multiplier && pacman.getPositionY() <= exitY+10*multiplier){
                     
-                    // left to right
-                    /*if(pacman.getPositionX()+pacman.getWidth() < bg.getPositionX() && latest[1] == 1){
-                        teleport(pacman, collision, bg.getWidth());
-                        latest[0] = 1;
-                        latest[1] = 0;
-                    }*/
-                    
-                    // right to left
-                    if(pacman.getPositionX() > bg.getPositionX()+bg.getWidth() && latest[1] == 1){
-                        teleport(pacman, collision, bg.getWidth());
-                        latest[0] = 0;
-                        latest[1] = 0;
+                    if(wait == 1){
+                        
+                        if(pacman.getPositionX()+pacman.getWidth() < bg.getPositionX()){
+                            teleport(pacman, collision, bg.getWidth());
+                            latest[0] = 0;
+                            latest[1] = 0;
+                        }
+                        
+                        else if(pacman.getPositionX() > bg.getPositionX()+bg.getWidth()){
+                            teleport(pacman, collision, bg.getWidth());
+                            latest[0] = 1;
+                            latest[1] = 0;
+                        }
+                        
                     }
                     
-                    // in order to avoid perpetual teleport, lets add an if block to understand if pacman has crossed the map already (using 'latest' variable)
-                    /*if(latest[0] == 1 && latest[1] == 0){
-                        if(pacman.getPositionX() < bg.getPositionX()+bg.getWidth()+pacman.getWidth()*multiplier){
-                            latest[1] = 1;
-                            System.out.println("MAP CROSSED");
-                        }
-                    }else*/ if(latest[0] == 0 && latest[1] == 0){
-                        if(pacman.getPositionX()+pacman.getWidth()*multiplier > bg.getPositionX()){
-                            latest[1] = 1;
-                            System.out.println("MAP CROSSED");
+                    else if(wait == 0){
+                        
+                        /*  in order to avoid perpetual teleport, lets add an if block to understand
+                            if pacman has crossed the map already (using 'latest' array (int))          */
+                        
+                        switch(direction){
+                            case 0:
+                                if(pacman.getPositionX()+pacman.getWidth()+multiplier < bg.getPositionX()+bg.getWidth()){
+                                    latest[1] = 1;
+                                }
+                                break;
+                                
+                            case 1:
+                                if(pacman.getPositionX()+pacman.getWidth() > bg.getPositionX()+multiplier){
+                                    latest[1] = 1;
+                                }
+                                break;
+                                
+                            // default used in case 'latest[1]' isn't valid (bug avoiding)
+                            default:
+                                latest[0] = 0;
+                                break;
                         }
                     }
+                    
                 }else if (collision != -1){
                     riposiziona(pacman, collision);
                 }
                 
                 pacman.update(elapsedTime);
                 
-                //rBorder.render(gc);
-                //lBorder.render(gc);
+                rBorder.render(gc);
+                lBorder.render(gc);
             }
         }.start();
         
@@ -318,19 +334,6 @@ public class ProgettoLabirynt extends Application {
             default:
                 break;
         }
-    }
-    
-    private int isPacmanOut(Sprite a, Sprite b){
-        
-        double lBorder = b.getPositionX();
-        double rBorder = b.getWidth() + b.getPositionX();
-        
-        if(a.getPositionX()+a.getWidth()*1.5 < lBorder)
-            return 1;
-        if(a.getPositionX() > rBorder)
-            return 0;
-        
-        return -1;
     }
     
     private int isPacmanColliding(Sprite a, Sprite b){
