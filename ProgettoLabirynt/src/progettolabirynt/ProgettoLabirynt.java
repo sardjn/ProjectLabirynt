@@ -34,14 +34,12 @@ import javafx.stage.Stage;
 public class ProgettoLabirynt extends Application {
     
     private boolean NOCLIP = false;
-    private boolean ignore = false;
-    private boolean ignoreRule = false;
     
     private double multiplier = 4.25;
     private double dimensions[] = getDimensions();
     private double bordersX = 70 * multiplier;
     private double bordersY = 5 * multiplier;
-    private double speed = 65*multiplier;
+    private double speed = 50*multiplier;
     
     private Canvas canvas;
     private double width = dimensions[0] + bordersX*2;
@@ -51,6 +49,18 @@ public class ProgettoLabirynt extends Application {
     private double exitY = 102 * multiplier + bordersY;
     private double dimExit = 12 * multiplier;
     
+    
+    /*
+        int latest[2] -->   [0] = direction
+                                    1 = to left
+                                    0 = to right
+                                        . . .
+                            [1] = check (can I teleport again?)
+                                    1 = yes
+                                    0 = no
+                                        . . .
+    */
+    private int latest[] = {0, 1}; // both 0, as startup
     
     public static void main(String[] args) 
     {
@@ -171,20 +181,30 @@ public class ProgettoLabirynt extends Application {
         
         new AnimationTimer()
         {
+            
+            /**
+            * if true:
+            *   -> ghosts can eat pacman
+            *      ghosts are faster
+            *      ghosts are immune
+            * 
+            *   -> pacman is not immune
+            *      pacman is slower
+            */
+            
+            // when pacman is not able to eat ghosts
+            boolean isPacmanWeak = true;
+            
+            // check if pacman was eaten from the ghosts
+            boolean isPacmanAlive = true;
+            
+            
             @Override
             public void handle(long currentNanoTime)
             {
-                boolean isPacmanWeak = true; // when pacman is not able to eat ghosts
-                boolean isPacmanAlive = true;
-                /**
-                 * if true:
-                 *   -> ghosts can eat pacman
-                 *      ghosts are faster
-                 *      ghosts are immune
-                 * 
-                 *   -> pacman is not immune
-                 *      pacman is slower
-                 */
+                if(!isPacmanAlive){
+                    System.exit(0);
+                }
                     
                 double elapsedTime = (currentNanoTime - lastNanoTime.value) / 1000000000.0;
                 lastNanoTime.value = currentNanoTime;
@@ -214,29 +234,41 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 int collision = isPacmanColliding(pacman, bg);
-                int res = isPacmanOut(pacman, bg);
+                // int res = isPacmanOut(pacman, bg);  <-- probably useless
                 
-                if(!ignore){
-                    if(collision != -1){
-                        if(pacman.getPositionY() >= exitY-10*multiplier && pacman.getPositionY() <= exitY+10*multiplier){ // tengo i multiplier solo per i test
-                            ignore = true;
-                        }else{
-                            ignore = false;
-                            riposiziona(pacman, collision);
-                        }
-                    }
-                }else{
-                    if(res == 0){
-                        teleport(pacman, 0, bg.getWidth());
-                    }else if(res == 1){
-                        teleport(pacman, 1, bg.getWidth());
+                
+                // check if pacman is in the tunnel
+                if(pacman.getPositionY() >= exitY-10*multiplier && pacman.getPositionY() <= exitY+10*multiplier){
+                    
+                    // left to right
+                    /*if(pacman.getPositionX()+pacman.getWidth() < bg.getPositionX() && latest[1] == 1){
+                        teleport(pacman, collision, bg.getWidth());
+                        latest[0] = 1;
+                        latest[1] = 0;
+                    }*/
+                    
+                    // right to left
+                    if(pacman.getPositionX() > bg.getPositionX()+bg.getWidth() && latest[1] == 1){
+                        teleport(pacman, collision, bg.getWidth());
+                        latest[0] = 0;
+                        latest[1] = 0;
                     }
                     
-                    if(isPacmanColliding(pacman, bg) == -1){
-                        ignore = false;
+                    // in order to avoid perpetual teleport, lets add an if block to understand if pacman has crossed the map already (using 'latest' variable)
+                    /*if(latest[0] == 1 && latest[1] == 0){
+                        if(pacman.getPositionX() < bg.getPositionX()+bg.getWidth()+pacman.getWidth()*multiplier){
+                            latest[1] = 1;
+                            System.out.println("MAP CROSSED");
+                        }
+                    }else*/ if(latest[0] == 0 && latest[1] == 0){
+                        if(pacman.getPositionX()+pacman.getWidth()*multiplier > bg.getPositionX()){
+                            latest[1] = 1;
+                            System.out.println("MAP CROSSED");
+                        }
                     }
+                }else if (collision != -1){
+                    riposiziona(pacman, collision);
                 }
-                
                 
                 pacman.update(elapsedTime);
                 
@@ -248,29 +280,28 @@ public class ProgettoLabirynt extends Application {
         stage.show();
     }
     
+    
+    
     private void teleport(Sprite a, int x, double distance){
         
         switch(x){
             case 0:
                 a.setPosition(a.getPositionX()-distance-a.getWidth()*1.5, a.getPositionY());
-                a.setVelocity(-speed, 0);
+                a.setVelocity(speed, 0);
                 break;
             case 1:
                 a.setPosition(a.getPositionX()+distance+a.getWidth()*1.5, a.getPositionY());
-                a.setVelocity(speed, 0);
+                a.setVelocity(-speed, 0);
                 break;
             default:
                 break;
         }
-        
-        System.out.println(a.getPositionX());
     }
     
     private void riposiziona(Sprite a, int x){
         
-        if(!ignore){
-            a.setVelocity(0, 0);
-        }
+        a.setVelocity(0, 0);
+        
         switch(x){
             case 0:
                 a.setPosition(a.getPositionX()-1, a.getPositionY());
