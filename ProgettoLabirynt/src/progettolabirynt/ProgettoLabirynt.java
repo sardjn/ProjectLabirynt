@@ -8,8 +8,7 @@
 package progettolabirynt;
 
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -20,11 +19,9 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -41,7 +38,7 @@ public class ProgettoLabirynt extends Application {
     private final double dimensions[] = getDimensions();
     private final double bordersX = 70 * multiplier;
     private final double bordersY = 5 * multiplier;
-    private final double speed = 50*multiplier;
+    private final double speed = 50 * multiplier;
     
     private Canvas canvas;
     private final double width = dimensions[0] + bordersX*2;
@@ -137,7 +134,7 @@ public class ProgettoLabirynt extends Application {
         
         
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setFill(Color.BLACK);
+        gc.setFill(Color.WHITE);                                // change to black !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         gc.fillRect(0, 0, width, height);
         
         //creazione mappa
@@ -166,32 +163,22 @@ public class ProgettoLabirynt extends Application {
         background.setPosition(0, 0);
         
         // start the game with music, then starts the gameplay
-        background.render(gc);
+        //background.render(gc);
         bg.render(gc);
         pacman.setImage(pacmanSprites[1]);
-        pacman.render(gc);
-        
-        
-        // colori dei muri della mappa
-        Color blue = Color.web("#1300bf");
-        Color darkBlue = Color.web("#06003f");
+        //pacman.render(gc);
         
         // values and stuff
         LongValue lastNanoTime = new LongValue( System.nanoTime() );
         IntValue score = new IntValue(0);
         
+        
+        // create all the collision boxes (players and walls)
+        createCollisionBoxes(pacman.getWidth(), pacman.getHeight(), gc);
+        
+        
         new AnimationTimer()
         {
-            
-            /**
-            * if true:
-            *   -> ghosts can eat pacman
-            *      ghosts are faster
-            *      ghosts are immune
-            * 
-            *   -> pacman is not immune
-            *      pacman is slower
-            */
             
             // when pacman is not able to eat ghosts
             boolean isPacmanWeak = true;
@@ -234,7 +221,7 @@ public class ProgettoLabirynt extends Application {
                     pacman.render(gc);
                 }
                 
-                int collision = isPacmanColliding(pacman, bg);
+                int collision = isColliding();
                 int direction = latest[0];
                 int wait = latest[1];
                 double mult = 3;
@@ -261,8 +248,8 @@ public class ProgettoLabirynt extends Application {
                     
                     else if(wait == 0){
                         
-                        /*  in order to avoid perpetual teleport, lets add an if block to understand
-                            if pacman has crossed the map already (using 'latest' array (int))          */
+                        //  in order to avoid perpetual teleport, lets add an if block to understand
+                        //  if pacman has crossed the map already (using 'latest' array (int))          
                         
                         switch(direction){
                             case 0:
@@ -288,18 +275,17 @@ public class ProgettoLabirynt extends Application {
                     riposiziona(pacman, collision);
                 }
                 
+                player.setX(pacman.getX());
                 pacman.update(elapsedTime);
-                
-                //System.out.println(isOnWall(pacman.getImage()));
                 
                 rBorder.render(gc);
                 lBorder.render(gc);
             }
         }.start();
         
+        
         stage.show();
     }
-    
     
     
     private void teleport(Sprite a, int x, double distance){
@@ -340,47 +326,73 @@ public class ProgettoLabirynt extends Application {
         }
     }
     
-    private int isPacmanColliding(Sprite a, Sprite b){
+    private int isColliding(){
         
-        double lBorder = b.getPositionX();
-        double rBorder = b.getWidth() + b.getPositionX();
-        double uBorder = b.getPositionY();
-        double bBorder = b.getHeight() + b.getPositionY();
-        
-        if(a.getPositionX()+a.getWidth() > rBorder)
-            return 0;
-        if(a.getPositionX() < lBorder)
-            return 1;
-        if(a.getPositionY() < uBorder)
-            return 2;
-        if(a.getPositionY()+a.getHeight() > bBorder)
-            return 3;
+        for(Rectangle r: walls){
+            if(player.getX()){
+                
+            }
+        }
         
         return -1;
     }
-
-    public boolean isOnWall(Image img) {
-        image = convert(img);
+    
+    
+    // create all the walls collision boxes (rectangles)
+    private Rectangle player;
+    private Rectangle WALL_UP;
+    private Rectangle WALL_LOW;
+    private Rectangle WALL_LEFT;
+    private Rectangle WALL_RIGHT;
+    
+    private ArrayList<Rectangle> walls = null;
+    
+    private void createCollisionBoxes(double playerWidth, double playerHeight, GraphicsContext g){
         
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        // Loop through every pixel in the image
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                // Get the RGB color of the pixel
-                int color = image.getRGB(x, y);
-
-                // Check if the color is not black (i.e., has any non-zero value)
-                if (color != Color.BLACK.getRGB()) {
-                    return true;
-                }
-            }
-        }
-
-        // If no non-black pixels were found, return false
-        return false;
+        double ex, ey;
+        double spessore = 6*multiplier; // spessore del muro in pixel
+                                                                                    /*      Rectangle rect = new Rectangle(cornerUpLeftX, cornerUpLeftY, width, height)     */
+        
+        // set the walls' color
+        g.setFill(Color.RED);
+        
+        // create walls' collision boxes
+        ex = width-bordersX*2 - 2*multiplier;
+        ey = spessore;
+        WALL_UP = new Rectangle(bordersX+multiplier, bordersY+multiplier, ex, ey);
+        g.fillRect(WALL_UP.getX(), WALL_UP.getY(), ex, ey);                                 // upper wall
+        // ---------------------------------------------------------------------------------------------------------
+        WALL_LOW = new Rectangle(bordersX+multiplier, height-bordersY-spessore-multiplier, ex, ey);
+        g.fillRect(WALL_LOW.getX(), WALL_LOW.getY(), ex, ey);                               // upper wall
+        // ---------------------------------------------------------------------------------------------------------
+        ex = spessore;
+        ey = height-bordersY*2 - 2*multiplier;
+        WALL_LEFT = new Rectangle(bordersX+multiplier, bordersY+multiplier, ex, ey);
+        g.fillRect(WALL_LEFT.getX(), WALL_LEFT.getY(), ex, ey);                             // left wall
+        // ---------------------------------------------------------------------------------------------------------
+        WALL_RIGHT = new Rectangle(width-bordersX-spessore-multiplier, bordersY+multiplier, ex, ey);
+        g.fillRect(WALL_RIGHT.getX(), WALL_RIGHT.getY(), ex, ey);                           // right wall
+        
+        
+        
+        // initiate player
+        player = new Rectangle(0, 0, playerWidth, playerHeight);
+        g.setFill(Color.BLUE);
+        g.fillRect(player.getX(), player.getY(), player.getWidth(), player.getHeight());
+        
+        
+        // setup walls ArrayList
+        setWallsList();
     }
+    
+    private void setWallsList(){
+        walls = new ArrayList<>();
+        walls.add(WALL_UP);
+        walls.add(WALL_LOW);
+        walls.add(WALL_LEFT);
+        walls.add(WALL_RIGHT);
+    }
+
     
     // get dimension for the window
     private double[] getDimensions(){
