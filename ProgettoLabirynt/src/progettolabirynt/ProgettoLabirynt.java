@@ -8,6 +8,8 @@
 package progettolabirynt;
 
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -288,6 +290,8 @@ public class ProgettoLabirynt extends Application {
                 
                 pacman.update(elapsedTime);
                 
+                //System.out.println(isOnWall(pacman.getImage()));
+                
                 rBorder.render(gc);
                 lBorder.render(gc);
             }
@@ -353,6 +357,29 @@ public class ProgettoLabirynt extends Application {
             return 3;
         
         return -1;
+    }
+
+    public boolean isOnWall(Image img) {
+        image = convert(img);
+        
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        // Loop through every pixel in the image
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // Get the RGB color of the pixel
+                int color = image.getRGB(x, y);
+
+                // Check if the color is not black (i.e., has any non-zero value)
+                if (color != Color.BLACK.getRGB()) {
+                    return true;
+                }
+            }
+        }
+
+        // If no non-black pixels were found, return false
+        return false;
     }
     
     // get dimension for the window
