@@ -330,34 +330,9 @@ public class ProgettoLabirynt extends Application {
     // check if pacman is colliding
     private int isColliding(){
         
-        for(Rectangle r: walls){
-            
-            double playerLeft = player.getX();
-            double playerRight = player.getX() + player.getWidth();
-            double playerTop = player.getY();
-            double playerBottom = player.getY() + player.getHeight();
-            double rLeft = r.getX();
-            double rRight = r.getX() + r.getWidth();
-            double rTop = r.getY();
-            double rBottom = r.getY() + r.getHeight();
-
-            // Check if the two rectangles overlap
-            if (playerTop < rBottom && playerBottom > rBottom && playerRight > rLeft && playerLeft < rRight) {
-                // Collision at the top of the player
-                return 0;
-            } else if (playerBottom > rTop && playerTop < rTop && playerRight > rLeft && playerLeft < rRight) {
-                // Collision at the bottom of the player
-                return 1;
-            } else if (playerRight > rLeft && playerLeft < rLeft && playerBottom > rTop && playerTop < rBottom) {
-                // Collision on the right side of the player
-                return 2;
-            } else if (playerLeft < rRight && playerRight > rRight && playerBottom > rTop && playerTop < rBottom) {
-                // Collision on the left side of the player
-                return 3;
-            }
-        }
-        return -1;
+        //
         
+        return -1;
     }
     
     
