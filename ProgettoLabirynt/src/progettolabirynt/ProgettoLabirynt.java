@@ -357,17 +357,15 @@ public class ProgettoLabirynt extends Application {
     // check if pacman is colliding
     private int isColliding(Sprite a){
         
-        double rangeX;
-        double rangeY;
+        double radius;
+        double distance;
+        double coords[] = {a.getPositionX(), a.getPositionY()};
         
         for(Rectangle wall: walls){
-            rangeX = wall.getX() + wall.getWidth();
-            rangeY = wall.getY() + wall.getHeight();
-            
-            if(a.getPositionX() > wall.getX() && a.getPositionX() < rangeX){
-                if(a.getPositionY() > wall.getY() && a.getPositionY() < rangeY){
-                    return isColliding(a, wall);
-                }
+            radius = (a.getWidth() * Math.sqrt(2)) / 2;
+            distance = Math.sqrt( Math.pow(coords[0] - wall.getX(), 2) + Math.pow(coords[1] - wall.getY(), 2) );
+            if(distance < radius){
+                return isColliding(a, wall);
             }
         }
         return -1;
