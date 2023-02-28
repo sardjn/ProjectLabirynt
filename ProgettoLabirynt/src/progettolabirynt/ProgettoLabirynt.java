@@ -14,6 +14,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -355,27 +356,37 @@ public class ProgettoLabirynt extends Application {
     
     // check if pacman is colliding
     private int isColliding(Sprite a){
-
-        double spriteX = a.getPositionX();
-        double spriteY = a.getPositionY();
-        double spriteWidth = a.getWidth();
-        double spriteHeight = a.getHeight();
-
-        if (spriteX + spriteWidth > width) {    // sostituisci con WALLS
+        
+        double rangeX;
+        double rangeY;
+        
+        for(Rectangle wall: walls){
+            rangeX = wall.getX() + wall.getWidth();
+            rangeY = wall.getY() + wall.getHeight();
+            
+            if(a.getPositionX() > wall.getX() && a.getPositionX() < rangeX){
+                if(a.getPositionY() > wall.getY() && a.getPositionY() < rangeY){
+                    return isColliding(a, wall);
+                }
+            }
+        }
+        return -1;
+    }
+    
+    private int isColliding(Sprite a, Rectangle wall){
+        if (a.getPositionX() + a.getWidth() > wall.getX()) {
             // Collision with right wall
             return 0;
-        } else if (spriteX < 0) {
+        } else if (a.getPositionX() < wall.getX() + wall.getWidth()) {
             // Collision with left wall
             return 1;
-        } else if (spriteY < 0) {
+        } else if (a.getPositionY() < wall.getY() + wall.getHeight()) {
             // Collision with upper wall
             return 2;
-        } else if (spriteY + spriteHeight > height) {
+        } else if (a.getPositionY() + a.getHeight() > wall.getY()) {
             // Collision with bottom wall
             return 3;
         }
-
-        // No collision detected
         return -1;
     }
     
