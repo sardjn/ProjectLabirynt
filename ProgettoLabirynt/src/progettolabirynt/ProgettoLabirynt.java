@@ -8,8 +8,8 @@
 package progettolabirynt;
 
 
-import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -68,6 +68,8 @@ public class ProgettoLabirynt extends Application {
     @Override
     public void start(Stage stage) throws Exception {
     
+        AtomicBoolean keyWait = new AtomicBoolean(true); // used on key release
+        
         /* dichiara canvas   */
         stage.setTitle( "Gioco" );
 
@@ -119,17 +121,36 @@ public class ProgettoLabirynt extends Application {
                 {
                     String code = e.getCode().toString();
                     input.remove( code );
+                    keyWait.set(true);
                 }
             });
         
         
         //gestione sprite per pacman
         Sprite pacman = new Sprite();
-        Image[] pacmanSprites = new Image[3];
-        pacmanSprites[0] = new Image("progettolabirynt/images/pacman1.png", 10*multiplier, 10*multiplier, false, false);
-        pacmanSprites[1] = new Image("progettolabirynt/images/pacman2.png", 10*multiplier, 10*multiplier, false, false);
-        pacmanSprites[2] = new Image("progettolabirynt/images/pacman3.png", 10*multiplier, 10*multiplier, false, false);
-        pacman.setMultipleImage(pacmanSprites);
+        
+        // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction RIGHT
+        Image[] pSprites_RIGHT = new Image[3];
+        pSprites_RIGHT[0] = new Image("progettolabirynt/images/pacman1.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_RIGHT[1] = new Image("progettolabirynt/images/pacman2_right.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_RIGHT[2] = new Image("progettolabirynt/images/pacman3_right.png", 10*multiplier, 10*multiplier, false, false);
+        // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction LEFT
+        Image[] pSprites_LEFT = new Image[3];
+        pSprites_LEFT[0] = pSprites_RIGHT[0];
+        pSprites_LEFT[1] = new Image("progettolabirynt/images/pacman2_left.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_LEFT[2] = new Image("progettolabirynt/images/pacman3_left.png", 10*multiplier, 10*multiplier, false, false);
+        // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction UP
+        Image[] pSprites_UP = new Image[3];
+        pSprites_UP[0] = pSprites_RIGHT[0];
+        pSprites_UP[1] = new Image("progettolabirynt/images/pacman2_up.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_UP[2] = new Image("progettolabirynt/images/pacman3_up.png", 10*multiplier, 10*multiplier, false, false);
+        // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction LOW
+        Image[] pSprites_LOW = new Image[3];
+        pSprites_LOW[0] = pSprites_RIGHT[0];
+        pSprites_LOW[1] = new Image("progettolabirynt/images/pacman2_low.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_LOW[2] = new Image("progettolabirynt/images/pacman3_low.png", 10*multiplier, 10*multiplier, false, false);
+        // ------------------------------------------------------------------------------------------------------------------------------------ set startup sprites
+        pacman.setMultipleImage(pSprites_RIGHT);
         pacman.setPosition((int)(width/2 - pacman.getWidth()*2), (int)(height/2 + 11*multiplier));
         
         
@@ -165,7 +186,7 @@ public class ProgettoLabirynt extends Application {
         // start the game with music, then starts the gameplay
         //background.render(gc);
         bg.render(gc);
-        pacman.setImage(pacmanSprites[1]);
+        pacman.setImage(pSprites_RIGHT[1]);
         //pacman.render(gc);
         
         // values and stuff
@@ -198,30 +219,36 @@ public class ProgettoLabirynt extends Application {
                 lastNanoTime.value = currentNanoTime;
                 
                 
-                if (input.contains("LEFT")){
+                if (input.contains("LEFT") && keyWait.get() == true){
                     pacman.setVelocity(-speed, 0);
+                    pacman.setMultipleImage(pSprites_LEFT);
+                    keyWait.set(false);
                 }
                     
-                if (input.contains("RIGHT")){
+                if (input.contains("RIGHT") && keyWait.get() == true){
                     pacman.setVelocity(speed, 0);
+                    pacman.setMultipleImage(pSprites_RIGHT);
+                    keyWait.set(false);
                 }
                     
-                if (input.contains("UP")){
+                if (input.contains("UP") && keyWait.get() == true){
                      pacman.setVelocity(0,-speed);
+                     pacman.setMultipleImage(pSprites_UP);
+                     keyWait.set(false);
                 }
                    
-                if (input.contains("DOWN")){
+                if (input.contains("DOWN") && keyWait.get() == true){
                     pacman.setVelocity(0,speed);
+                    pacman.setMultipleImage(pSprites_LOW);
+                    keyWait.set(false);
                 }
                 
-                background.render(gc);
-                bg.render(gc);
+                //background.render(gc);
+                //bg.render(gc);
                 // aggiorna il pacman
-                if(isPacmanAlive){
-                    pacman.render(gc);
-                }
+                pacman.render(gc);
                 
-                int collision = isColliding();
+                int collision = isColliding(pacman);
                 int direction = latest[0];
                 int wait = latest[1];
                 double mult = 3;
@@ -275,11 +302,10 @@ public class ProgettoLabirynt extends Application {
                     riposiziona(pacman, collision);
                 }
                 
-                player.setX(pacman.getPositionX());
                 pacman.update(elapsedTime);
                 
-                rBorder.render(gc);
-                lBorder.render(gc);
+                //rBorder.render(gc);
+                //lBorder.render(gc);
             }
         }.start();
         
@@ -328,16 +354,33 @@ public class ProgettoLabirynt extends Application {
     
     
     // check if pacman is colliding
-    private int isColliding(){
-        
-        //
-        
+    private int isColliding(Sprite a){
+
+        double spriteX = a.getPositionX();
+        double spriteY = a.getPositionY();
+        double spriteWidth = a.getWidth();
+        double spriteHeight = a.getHeight();
+
+        if (spriteX + spriteWidth > width) {    // sostituisci con WALLS
+            // Collision with right wall
+            return 0;
+        } else if (spriteX < 0) {
+            // Collision with left wall
+            return 1;
+        } else if (spriteY < 0) {
+            // Collision with upper wall
+            return 2;
+        } else if (spriteY + spriteHeight > height) {
+            // Collision with bottom wall
+            return 3;
+        }
+
+        // No collision detected
         return -1;
     }
     
     
     // create all the walls collision boxes (rectangles)
-    private Rectangle player;
     private Rectangle WALL_UP;
     private Rectangle WALL_LOW;
     private Rectangle WALL_LEFT;
@@ -371,12 +414,6 @@ public class ProgettoLabirynt extends Application {
         WALL_RIGHT = new Rectangle(width-bordersX-spessore-multiplier, bordersY+multiplier, ex, ey);
         g.fillRect(WALL_RIGHT.getX(), WALL_RIGHT.getY(), ex, ey);                           // right wall
         
-        
-        
-        // initiate player
-        player = new Rectangle(0, 0, playerWidth, playerHeight);
-        g.setFill(Color.BLUE);
-        g.fillRect(player.getX(), player.getY(), player.getWidth(), player.getHeight());
         
         
         // setup walls ArrayList
