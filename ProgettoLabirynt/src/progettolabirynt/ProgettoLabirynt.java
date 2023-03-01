@@ -196,7 +196,7 @@ public class ProgettoLabirynt extends Application {
         
         
         // create all the collision boxes (players and walls)
-        createCollisionBoxes(pacman.getWidth(), pacman.getHeight(), gc);
+        createCollisionBoxes(gc);
         
         
         new AnimationTimer()
@@ -337,10 +337,10 @@ public class ProgettoLabirynt extends Application {
         
         switch(x){
             case 0:
-                a.setPosition(a.getPositionX()-1, a.getPositionY());
+                a.setPosition(a.getPositionX()+1, a.getPositionY());
                 break;
             case 1:
-                a.setPosition(a.getPositionX()+1, a.getPositionY());
+                a.setPosition(a.getPositionX()-1, a.getPositionY());
                 break;
             case 2:
                 a.setPosition(a.getPositionX(), a.getPositionY()+1);
@@ -355,19 +355,24 @@ public class ProgettoLabirynt extends Application {
     
     
     // check if pacman is colliding
-    private int isColliding(Sprite a){
+    private boolean isColliding(Rectangle player, Rectangle wall){
         
-        double radius;
-        double distance;
-        double coords[] = {a.getPositionX(), a.getPositionY()};
+        Bounds bounds1 = player.getBoundsInLocal();
+        Bounds bounds2 = wall.getBoundsInLocal();
+
+        return bounds1.intersects(bounds2);
+    }
+    
+    private int isColliding(Sprite a) {
         
-        for(Rectangle wall: walls){
-            radius = (a.getWidth() * Math.sqrt(2)) / 2;
-            distance = Math.sqrt( Math.pow(coords[0] - wall.getX(), 2) + Math.pow(coords[1] - wall.getY(), 2) );
-            if(distance < radius){
+        Rectangle player = new Rectangle(a.getPositionX(), a.getPositionX(), a.getWidth(), a.getHeight());
+
+        for (Rectangle wall: walls) {
+            if (isColliding(player, wall)) {
                 return isColliding(a, wall);
             }
         }
+
         return -1;
     }
     
@@ -397,7 +402,7 @@ public class ProgettoLabirynt extends Application {
     
     private ArrayList<Rectangle> walls = null;
     
-    private void createCollisionBoxes(double playerWidth, double playerHeight, GraphicsContext g){
+    private void createCollisionBoxes(GraphicsContext g){
         
         double ex, ey;
         double spessore = 6*multiplier; // spessore del muro in pixel
