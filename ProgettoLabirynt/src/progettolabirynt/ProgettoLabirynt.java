@@ -332,8 +332,7 @@ public class ProgettoLabirynt extends Application {
                 
                 
                 // just for testing
-                System.out.println(vectBox.getX() + " " + vectBox.getY());
-                draw(gc, vectBox.getVectorBox());
+                gc.fillRect(vectBox.getX(), vectBox.getY(), vectBox.getWidth(), vectBox.getHeight());
             }
         }.start();
         
@@ -520,14 +519,5 @@ public class ProgettoLabirynt extends Application {
         arr[1] = tmp.getHeight() * multiplier;
         
         return arr;
-    }
-    
-    
-    
-    
-    
-    // testing here!
-    public void draw(GraphicsContext gc, Rectangle r){
-        gc.fillRect(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
 }
