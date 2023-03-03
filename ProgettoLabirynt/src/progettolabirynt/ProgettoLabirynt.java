@@ -50,6 +50,7 @@ public class ProgettoLabirynt extends Application {
     // coordinata (Y) delle due uscite, da cui pacman si teletrasporta
     private final double exitY = 102 * multiplier + bordersY;
     private final double vBoxDim = speed*1.5;
+    private int vboxDir;
     
     
     /*
@@ -211,9 +212,6 @@ public class ProgettoLabirynt extends Application {
             // check if pacman was eaten from the ghosts
             boolean isPacmanAlive = true;
             
-            // direction of the VBox
-            int vboxDir;
-            
             
             @Override
             public void handle(long currentNanoTime)
@@ -284,13 +282,12 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 
-                //background.render(gc);
-                //bg.render(gc);
+                background.render(gc);
+                bg.render(gc);
                 // aggiorna il pacman
                 pacman.render(gc);
                 
                 int collision = isColliding(pacman);
-                // System.out.println(collision);
                 int direction = latest[0];
                 int wait = latest[1];
                 double mult = 3;
@@ -345,8 +342,8 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 pacman.update(elapsedTime);
-                //rBorder.render(gc);
-                //lBorder.render(gc);
+                rBorder.render(gc);
+                lBorder.render(gc);
             }
         }.start();
         
@@ -426,16 +423,13 @@ public class ProgettoLabirynt extends Application {
         double wallPos[] = {wall.getX(), wall.getY(), wall.getX()+wall.getWidth(), wall.getY()+wall.getHeight()}; // startX, startY, endX, endY
         
         // check on which side the player is colliding
-        if(playerPos[2] > wallPos[0]){
+        if(playerPos[2] > wallPos[0] && vboxDir == 1){
             return 0;
-        }
-        if(playerPos[0] < wallPos[2]){
+        }else if(playerPos[0] < wallPos[2] && vboxDir == 0){
             return 1;
-        }
-        if(playerPos[1] > wallPos[3]){
+        }else if(playerPos[1] < wallPos[3] && vboxDir == 2){
             return 2;
-        }
-        if(playerPos[3] > wallPos[1]){
+        }else if(playerPos[3] > wallPos[1] && vboxDir == 3){
             return 3;
         }
         
