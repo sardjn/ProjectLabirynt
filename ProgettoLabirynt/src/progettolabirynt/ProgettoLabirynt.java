@@ -9,6 +9,8 @@ package progettolabirynt;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -35,7 +37,7 @@ public class ProgettoLabirynt extends Application {
     
     private boolean NOCLIP = false;
     
-    private final double multiplier = 3;
+    private final double multiplier = 4.25;
     private final double dimensions[] = getDimensions();
     private final double bordersX = 70 * multiplier;
     private final double bordersY = 5 * multiplier;
@@ -47,6 +49,7 @@ public class ProgettoLabirynt extends Application {
     
     // coordinata (Y) delle due uscite, da cui pacman si teletrasporta
     private final double exitY = 102 * multiplier + bordersY;
+    private final double vBoxDim = speed*1.5;
     
     
     /*
@@ -197,7 +200,7 @@ public class ProgettoLabirynt extends Application {
         
         // create all the collision boxes (players and walls)
         createCollisionBoxes(gc);
-        
+        VectorBox vectBox = new VectorBox(pacman.getPositionX(), pacman.getPositionY(), pacman.getWidth(), pacman.getHeight());
         
         new AnimationTimer()
         {
@@ -212,6 +215,9 @@ public class ProgettoLabirynt extends Application {
             @Override
             public void handle(long currentNanoTime)
             {
+                // Firstly, update the VBox
+                updateVBox(vectBox, pacman);
+                
                 if(!isPacmanAlive){
                     System.exit(0);
                 }
@@ -224,25 +230,41 @@ public class ProgettoLabirynt extends Application {
                     pacman.setVelocity(-speed, 0);
                     pacman.setMultipleImage(pSprites_LEFT);
                     keyWait.set(false);
+                    
+                    // move the vectorBox
+                    updateVectBox(pacman, vectBox, 0);
                 }
                     
                 if (input.contains("RIGHT") && keyWait.get() == true){
                     pacman.setVelocity(speed, 0);
                     pacman.setMultipleImage(pSprites_RIGHT);
                     keyWait.set(false);
+                    
+                    // move the vectorBox
+                    updateVectBox(pacman, vectBox, 1);
                 }
                     
                 if (input.contains("UP") && keyWait.get() == true){
                      pacman.setVelocity(0,-speed);
                      pacman.setMultipleImage(pSprites_UP);
                      keyWait.set(false);
+                     
+                     // move the vectorBox
+                    updateVectBox(pacman, vectBox, 2);
                 }
                    
                 if (input.contains("DOWN") && keyWait.get() == true){
                     pacman.setVelocity(0,speed);
                     pacman.setMultipleImage(pSprites_LOW);
                     keyWait.set(false);
+                    
+                    // move the vectorBox
+                    updateVectBox(pacman, vectBox, 3);
                 }
+                
+                // update vector box (same direction, so no changes to the pos of the vectBox)
+                updateVectBox(pacman, vectBox, 4);
+                
                 
                 //background.render(gc);
                 //bg.render(gc);
@@ -250,7 +272,7 @@ public class ProgettoLabirynt extends Application {
                 pacman.render(gc);
                 
                 int collision = isColliding(pacman);
-                System.out.println(collision);
+                // System.out.println(collision);
                 int direction = latest[0];
                 int wait = latest[1];
                 double mult = 3;
@@ -307,11 +329,52 @@ public class ProgettoLabirynt extends Application {
                 pacman.update(elapsedTime);
                 //rBorder.render(gc);
                 //lBorder.render(gc);
+                
+                
+                // just for testing
+                System.out.println(vectBox.getX() + " " + vectBox.getY());
+                draw(gc, vectBox.getVectorBox());
             }
         }.start();
         
         
         stage.show();
+    }
+    
+    
+    public void updateVectBox(Sprite a, VectorBox vectBox, int mode){
+        
+        Rectangle vb = new Rectangle(vectBox.getX(), vectBox.getY(), vectBox.getWidth(), vectBox.getHeight());
+        
+        switch(mode){
+            case 0: // left
+                vb.setX(a.getPositionX()-vBoxDim);
+                vb.setY(a.getPositionY());
+                break;
+            case 1: // right
+                vb.setX(a.getPositionX()+a.getWidth()+vBoxDim);
+                vb.setY(a.getPositionY());
+                break;
+            case 2: // up
+                vb.setX(a.getPositionX());
+                vb.setY(a.getPositionY()-vBoxDim);
+                break;
+            case 3: // down
+                vb.setX(a.getPositionX());
+                vb.setY(a.getPositionY()+a.getHeight()+vBoxDim);
+                break;
+            case 4: // just move the vector box
+                vb.setX(a.getPositionX());
+                break;
+            
+            default:
+                break;
+        }
+    }
+    
+    private void updateVBox(VectorBox vb, Sprite a){
+        double tmp[] = {a.getPositionX(), a.getPositionY()};
+        vb.setRecord(tmp);
     }
     
     
@@ -457,5 +520,14 @@ public class ProgettoLabirynt extends Application {
         arr[1] = tmp.getHeight() * multiplier;
         
         return arr;
+    }
+    
+    
+    
+    
+    
+    // testing here!
+    public void draw(GraphicsContext gc, Rectangle r){
+        gc.fillRect(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
 }
