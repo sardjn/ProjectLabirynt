@@ -35,7 +35,7 @@ public class ProgettoLabirynt extends Application {
     
     private boolean NOCLIP = false;
     
-    private final double multiplier = 4.25;
+    private final double multiplier = 3;
     private final double dimensions[] = getDimensions();
     private final double bordersX = 70 * multiplier;
     private final double bordersY = 5 * multiplier;
@@ -250,6 +250,7 @@ public class ProgettoLabirynt extends Application {
                 pacman.render(gc);
                 
                 int collision = isColliding(pacman);
+                System.out.println(collision);
                 int direction = latest[0];
                 int wait = latest[1];
                 double mult = 3;
@@ -304,7 +305,6 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 pacman.update(elapsedTime);
-                
                 //rBorder.render(gc);
                 //lBorder.render(gc);
             }
@@ -337,17 +337,17 @@ public class ProgettoLabirynt extends Application {
         
         switch(x){
             case 0:
-                a.setPosition(a.getPositionX()+1, a.getPositionY());
-                break;
-            case 1:
                 a.setPosition(a.getPositionX()-1, a.getPositionY());
-                break;
+                break; // case: right
+            case 1:
+                a.setPosition(a.getPositionX()+1, a.getPositionY());
+                break; // case: left
             case 2:
                 a.setPosition(a.getPositionX(), a.getPositionY()+1);
-                break;
+                break; // case: up
             case 3:
                 a.setPosition(a.getPositionX(), a.getPositionY()-1);
-                break;
+                break; // case: bottom
             default:
                 break;
         }
@@ -364,32 +364,37 @@ public class ProgettoLabirynt extends Application {
     }
     
     private int isColliding(Sprite a) {
+        Rectangle player = new Rectangle(a.getPositionX(), a.getPositionY(), a.getWidth(), a.getHeight());
         
-        Rectangle player = new Rectangle(a.getPositionX(), a.getPositionX(), a.getWidth(), a.getHeight());
-
         for (Rectangle wall: walls) {
             if (isColliding(player, wall)) {
-                return isColliding(a, wall);
+                return whereCollision(player, wall);
             }
         }
 
         return -1;
     }
     
-    private int isColliding(Sprite a, Rectangle wall){
-        if (a.getPositionX() + a.getWidth() > wall.getX()) {
-            // Collision with right wall
+    private int whereCollision(Rectangle a, Rectangle wall){
+        
+        double playerPos[] = {a.getX(), a.getY(), a.getX()+a.getWidth(), a.getY()+a.getHeight()}; // startX, startY, endX, endY
+        double wallPos[] = {wall.getX(), wall.getY(), wall.getX()+wall.getWidth(), wall.getY()+wall.getHeight()}; // startX, startY, endX, endY
+        
+        // check on which side the player is colliding
+        if(playerPos[2] > wallPos[0]){
             return 0;
-        } else if (a.getPositionX() < wall.getX() + wall.getWidth()) {
-            // Collision with left wall
+        }
+        if(playerPos[0] < wallPos[2]){
             return 1;
-        } else if (a.getPositionY() < wall.getY() + wall.getHeight()) {
-            // Collision with upper wall
+        }
+        if(playerPos[1] > wallPos[3]){
             return 2;
-        } else if (a.getPositionY() + a.getHeight() > wall.getY()) {
-            // Collision with bottom wall
+        }
+        if(playerPos[3] > wallPos[1]){
             return 3;
         }
+        
+        // r, l, u, b
         return -1;
     }
     
