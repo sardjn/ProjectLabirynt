@@ -211,6 +211,9 @@ public class ProgettoLabirynt extends Application {
             // check if pacman was eaten from the ghosts
             boolean isPacmanAlive = true;
             
+            // direction of the VBox
+            int vboxDir;
+            
             
             @Override
             public void handle(long currentNanoTime)
@@ -226,44 +229,59 @@ public class ProgettoLabirynt extends Application {
                 lastNanoTime.value = currentNanoTime;
                 
                 
-                if (input.contains("LEFT") && keyWait.get() == true){
-                    pacman.setVelocity(-speed, 0);
-                    pacman.setMultipleImage(pSprites_LEFT);
-                    keyWait.set(false);
-                    
-                    // move the vectorBox
-                    updateVectBox(pacman, vectBox, 0);
+                if (input.contains("LEFT")){
+                    if(keyWait.get() == true){
+                        pacman.setVelocity(-speed, 0);
+                        pacman.setMultipleImage(pSprites_LEFT);
+                        keyWait.set(false);
+                    }
+                    vboxDir = 0;
                 }
                     
-                if (input.contains("RIGHT") && keyWait.get() == true){
-                    pacman.setVelocity(speed, 0);
-                    pacman.setMultipleImage(pSprites_RIGHT);
-                    keyWait.set(false);
-                    
-                    // move the vectorBox
-                    updateVectBox(pacman, vectBox, 1);
+                if (input.contains("RIGHT")){
+                    if(keyWait.get() == true){
+                        pacman.setVelocity(speed, 0);
+                        pacman.setMultipleImage(pSprites_RIGHT);
+                        keyWait.set(false);
+                    }
+                    vboxDir = 1;
                 }
                     
-                if (input.contains("UP") && keyWait.get() == true){
-                     pacman.setVelocity(0,-speed);
-                     pacman.setMultipleImage(pSprites_UP);
-                     keyWait.set(false);
-                     
-                     // move the vectorBox
-                    updateVectBox(pacman, vectBox, 2);
+                if (input.contains("UP")){
+                    if(keyWait.get() == true){
+                        pacman.setVelocity(0,-speed);
+                        pacman.setMultipleImage(pSprites_UP);
+                        keyWait.set(false);
+                    }
+                    vboxDir = 2;
                 }
                    
-                if (input.contains("DOWN") && keyWait.get() == true){
-                    pacman.setVelocity(0,speed);
-                    pacman.setMultipleImage(pSprites_LOW);
-                    keyWait.set(false);
-                    
-                    // move the vectorBox
-                    updateVectBox(pacman, vectBox, 3);
+                if (input.contains("DOWN")){
+                    if(keyWait.get() == true){
+                        pacman.setVelocity(0,speed);
+                        pacman.setMultipleImage(pSprites_LOW);
+                        keyWait.set(false);
+                    }
+                    vboxDir = 3;
                 }
                 
-                // update vector box (same direction, so no changes to the pos of the vectBox)
-                updateVectBox(pacman, vectBox, 4);
+                
+                switch(vboxDir){
+                    case 0:
+                        vectBox.setPosition(pacman.getPositionX()-pacman.getWidth(), pacman.getPositionY());
+                        break;
+                    case 1:
+                        vectBox.setPosition(pacman.getPositionX()+pacman.getWidth(), pacman.getPositionY());
+                        break;
+                    case 2:
+                        vectBox.setPosition(pacman.getPositionX(), pacman.getPositionY()-pacman.getHeight());
+                        break;
+                    case 3:
+                        vectBox.setPosition(pacman.getPositionX(), pacman.getPositionY()+pacman.getHeight());
+                        break;
+                    default:
+                        break;
+                }
                 
                 
                 //background.render(gc);
@@ -329,46 +347,11 @@ public class ProgettoLabirynt extends Application {
                 pacman.update(elapsedTime);
                 //rBorder.render(gc);
                 //lBorder.render(gc);
-                
-                
-                // just for testing
-                gc.fillRect(vectBox.getX(), vectBox.getY(), vectBox.getWidth(), vectBox.getHeight());
             }
         }.start();
         
         
         stage.show();
-    }
-    
-    
-    public void updateVectBox(Sprite a, VectorBox vectBox, int mode){
-        
-        Rectangle vb = new Rectangle(vectBox.getX(), vectBox.getY(), vectBox.getWidth(), vectBox.getHeight());
-        
-        switch(mode){
-            case 0: // left
-                vb.setX(a.getPositionX()-vBoxDim);
-                vb.setY(a.getPositionY());
-                break;
-            case 1: // right
-                vb.setX(a.getPositionX()+a.getWidth()+vBoxDim);
-                vb.setY(a.getPositionY());
-                break;
-            case 2: // up
-                vb.setX(a.getPositionX());
-                vb.setY(a.getPositionY()-vBoxDim);
-                break;
-            case 3: // down
-                vb.setX(a.getPositionX());
-                vb.setY(a.getPositionY()+a.getHeight()+vBoxDim);
-                break;
-            case 4: // just move the vector box
-                vb.setX(a.getPositionX());
-                break;
-            
-            default:
-                break;
-        }
     }
     
     private void updateVBox(VectorBox vb, Sprite a){

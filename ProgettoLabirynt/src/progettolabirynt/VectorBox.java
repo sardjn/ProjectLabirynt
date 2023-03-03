@@ -43,7 +43,10 @@ public class VectorBox {
         this.record = record;
     }
     
-    
+    public void setPosition(double x, double y){
+        this.x = x;
+        this.y = y;
+    }
 
     public Rectangle getVectorBox() {
         return vectorBox;
