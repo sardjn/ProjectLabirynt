@@ -17,8 +17,8 @@ The 2nd number, represents the wall id (which is a number between 1 and 36)
 
 <div align="center">
   <p>
-    <img width="450" src="./images/MapKeysNumbered.png" alt="mapKeys">
-    <img width="450" src="./images/MapNoKeys.png" alt="mapNoKeys">
+    <img width="400" src="./images/MapKeysNumbered.png" alt="mapKeys">
+    <img width="400" src="./images/MapNoKeys.png" alt="mapNoKeys">
   </p>
 </div>
 
