@@ -1,3 +1,3 @@
 # Project Labirynt
 
-<img alt="mapKeys" src="/images/mapKeysNumbered.png">
+<img alt="mapKeys" src="./images/mapKeysNumbered.png">
