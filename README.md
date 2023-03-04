@@ -1,3 +1,3 @@
 # Project Labirynt
 
-<img alt="mapKeys" src="/images/mapKeysNumbered.png">
+![Alt text](https://assets.digitalocean.com/articles/alligator/boo.svg "a title")
