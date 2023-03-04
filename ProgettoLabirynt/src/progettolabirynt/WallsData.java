@@ -43,12 +43,12 @@ public class WallsData {
         wallsData[7][1] = 6.0;
         
         wallsData[8][0] = 6.0;
-        wallsData[8][1] = 28.0;
+        wallsData[8][1] = 30.0;
         
         wallsData[9][0] = 38.0;
         wallsData[9][1] = 14.0;
         
-        wallsData[10][0] = 19.0;
+        wallsData[10][0] = 22.0;
         wallsData[10][1] = 14.0;
         
         wallsData[11][0] = 20.0;
@@ -60,7 +60,7 @@ public class WallsData {
         wallsData[13][0] = 6.0;
         wallsData[13][1] = 25.0;
         
-        wallsData[14][0] = 20.0;
+        wallsData[14][0] = 22.0;
         wallsData[14][1] = 6.0;
         
         

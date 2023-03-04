@@ -158,11 +158,11 @@ public class ProgettoLabirynt extends Application {
         pSprites_LOW[2] = new Image("progettolabirynt/images/pacman3_low.png", pixSize*multiplier, pixSize*multiplier, false, false);
         // ------------------------------------------------------------------------------------------------------------------------------------ set startup sprites
         pacman.setMultipleImage(pSprites_RIGHT);
-        pacman.setPosition((int)(width/2 - pacman.getWidth()*2), (int)(height/2 + 11*multiplier));
+        pacman.setPosition((int)(width/2 - pacman.getWidth()*2 - 3*multiplier), (int)(height/2 + 11*multiplier + multiplier/2));
         
         
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setFill(Color.WHITE);                                // change to black !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, width, height);
         
         //creazione mappa
@@ -177,13 +177,6 @@ public class ProgettoLabirynt extends Application {
         lBorder.setImage("progettolabirynt/images/bg-borders.png", multiplier);
         lBorder.setPosition(width-bordersX, 0);
         
-        
-        // font
-        Font theFont = Font.font( "Helvetica", FontWeight.BOLD, 24 );
-        gc.setFont( theFont );
-        gc.setFill( Color.GREEN );
-        gc.setStroke( Color.BLACK );
-        gc.setLineWidth(1);
         
         // background color black
         Sprite background = new Sprite();
@@ -204,6 +197,7 @@ public class ProgettoLabirynt extends Application {
         createCollisionBoxes(gc);
         VectorBox vectBox = new VectorBox(pacman.getPositionX(), pacman.getPositionY(), pacman.getWidth(), pacman.getHeight());
 
+        // AtomicBoolean once = new AtomicBoolean(true);
         
         new AnimationTimer()
         {
@@ -284,8 +278,8 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 
-                //background.render(gc);
-                //bg.render(gc);
+                background.render(gc);
+                bg.render(gc);
                 // aggiorna il pacman
                 pacman.render(gc);
                 
@@ -299,6 +293,11 @@ public class ProgettoLabirynt extends Application {
                 if(pacman.getPositionX() < exitX && pacman.getPositionX() > exitX+bg.getWidth()){
                     
                     if(wait == 1){
+                        
+                        /*if(once.get() == true){
+                            pacman.setVelocity(pacman.getVelocityX() / 3, 0);
+                            once.set(false);
+                        }*/
                         
                         if(pacman.getPositionX()+pacman.getWidth() < bg.getPositionX()){
                             teleport(pacman, collision, bg.getWidth());
@@ -319,16 +318,21 @@ public class ProgettoLabirynt extends Application {
                         //  in order to avoid perpetual teleport, lets add an if block to understand
                         //  if pacman has crossed the map already (using 'latest' array (int))          
                         
+                        
                         switch(direction){
                             case 0:
                                 if(pacman.getPositionX()+pacman.getWidth()+multiplier < bg.getPositionX()+bg.getWidth()){
                                     latest[1] = 1;
+                                    /*pacman.setVelocity(pacman.getVelocityX() * 3, 0);
+                                    once.set(true);*/
                                 }
                                 break;
                                 
                             case 1:
                                 if(pacman.getPositionX()+pacman.getWidth() > bg.getPositionX()+multiplier){
                                     latest[1] = 1;
+                                    /*pacman.setVelocity(pacman.getVelocityX() * 3, 0);
+                                    once.set(true);*/
                                 }
                                 break;
                                 
@@ -344,8 +348,8 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 pacman.update(elapsedTime);
-                //rBorder.render(gc);
-                //lBorder.render(gc);
+                rBorder.render(gc);
+                lBorder.render(gc);
             }
         }.start();
         
@@ -477,6 +481,13 @@ public class ProgettoLabirynt extends Application {
     private Rectangle WALL_27;
     private Rectangle WALL_28;
     private Rectangle WALL_29;
+    private Rectangle WALL_30;
+    private Rectangle WALL_31;
+    private Rectangle WALL_32;
+    private Rectangle WALL_33;
+    private Rectangle WALL_34;
+    private Rectangle WALL_35;
+    private Rectangle WALL_36;
 
     
     private ArrayList<Rectangle> walls = null;
@@ -661,8 +672,8 @@ public class ProgettoLabirynt extends Application {
         g.fillRect(WALL_12.getX(), WALL_12.getY(), WALL_12.getWidth(), WALL_12.getHeight());
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         WALL_13 = new Rectangle(
-            offsetX + pathWidth*2 + WALL_11.getWidth() + WALL_7.getWidth() + WALL_12.getWidth(), 
-            offsetY + sideY + pathWidth + WALL_3.getHeight() + WALL_8.getHeight(), 
+            offsetX + pathWidth*2 + WALL_11.getWidth() + WALL_7.getWidth() + WALL_12.getWidth() + multiplier, 
+            offsetY + sideY + pathWidth + WALL_3.getHeight() + WALL_8.getHeight() - multiplier, 
             wd[3][0], 
             wd[3][1]
             );
@@ -688,8 +699,185 @@ public class ProgettoLabirynt extends Application {
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         
         
-        //new walls
+        WALL_16 = new Rectangle(
+            offsetX, 
+            offsetY + pathWidth*4 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight(), 
+            wd[4][0],
+            wd[4][1]
+            );
+        g.fillRect(WALL_16.getX(), WALL_16.getY(), WALL_16.getWidth(), WALL_16.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_17 = new Rectangle(
+            offsetX + pathWidth*2 + sideX + WALL_6.getWidth(),
+            offsetY + pathWidth*4 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight(), 
+            wd[8][0],
+            wd[8][1]
+            );
+        g.fillRect(WALL_17.getX(), WALL_17.getY(), WALL_17.getWidth(), WALL_17.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_18 = new Rectangle(
+            offsetX + pathWidth*3 + sideX + WALL_6.getWidth() + WALL_7.getWidth(), 
+            offsetY + sideY + pathWidth*4 + WALL_2.getHeight() + WALL_8.getHeight() + WALL_12.getHeight(), 
+            wd[4][0],
+            wd[4][1]
+            );
+        g.fillRect(WALL_18.getX(), WALL_18.getY(), WALL_18.getWidth(), WALL_18.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_19 = new Rectangle(
+            offsetX + pathWidth*3 + sideX + WALL_6.getWidth() + WALL_7.getWidth(),
+            offsetY + sideY + pathWidth*5 + WALL_2.getHeight() + WALL_8.getHeight() + WALL_12.getHeight() + WALL_18.getHeight(), 
+            wd[9][0],
+            wd[9][1]
+            );
+        g.fillRect(WALL_19.getX(), WALL_19.getY(), WALL_19.getWidth(), WALL_19.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_20 = new Rectangle(
+            offsetX + pathWidth*4 + sideX + WALL_6.getWidth() + WALL_7.getWidth() + WALL_8.getWidth(), 
+            offsetY + pathWidth*4 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight(), 
+            wd[8][0],
+            wd[8][1]
+            );
+        g.fillRect(WALL_20.getX(), WALL_20.getY(), WALL_20.getWidth(), WALL_20.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_21 = new Rectangle(
+            offsetX + pathWidth*5 + sideX + WALL_1.getWidth()*3 + WALL_3.getWidth(), 
+            offsetY + pathWidth*4 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight(), 
+            wd[4][0],
+            wd[4][1]
+            );
+        g.fillRect(WALL_21.getX(), WALL_21.getY(), WALL_21.getWidth(), WALL_21.getHeight());
         
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        
+        
+        WALL_22 = new Rectangle(
+            offsetX + pathWidth + sideX,
+            offsetY + pathWidth*5 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight(), 
+            wd[14][0],
+            wd[14][1]
+            );
+        g.fillRect(WALL_22.getX(), WALL_22.getY(), WALL_22.getWidth(), WALL_22.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_23 = new Rectangle(
+            offsetX + pathWidth*2 + sideX + WALL_1.getWidth(), 
+            offsetY + pathWidth*5 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight(), 
+            wd[11][0],
+            wd[11][1]
+            );
+        g.fillRect(WALL_23.getX(), WALL_23.getY(), WALL_23.getWidth(), WALL_23.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_24 = new Rectangle(
+            offsetX + pathWidth*2 + WALL_11.getWidth() + WALL_7.getWidth() + WALL_12.getWidth() + multiplier, 
+            offsetY + sideY + pathWidth*5 + WALL_2.getHeight() + WALL_8.getHeight() + WALL_12.getHeight() + WALL_18.getHeight() + WALL_19.getHeight() - multiplier, 
+            wd[3][0],
+            wd[3][1]
+            );
+        g.fillRect(WALL_24.getX(), WALL_24.getY(), WALL_24.getWidth(), WALL_24.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_25 = new Rectangle(
+            offsetX + pathWidth*4 + sideX + WALL_1.getWidth()*2 + WALL_3.getWidth() + 2*multiplier, 
+            offsetY + pathWidth*5 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight(), 
+            wd[11][0],
+            wd[11][1]
+            );
+        g.fillRect(WALL_25.getX(), WALL_25.getY(), WALL_25.getWidth(), WALL_25.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_26 = new Rectangle(
+            offsetX + pathWidth*5 + sideX + WALL_1.getWidth()*3 + WALL_3.getWidth(), 
+            offsetY + pathWidth*5 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight(), 
+            wd[14][0],
+            wd[14][1]
+            );
+        g.fillRect(WALL_26.getX(), WALL_26.getY(), WALL_26.getWidth(), WALL_26.getHeight());
+        
+        
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        
+        
+        WALL_27 = new Rectangle(
+            offsetX,
+            offsetY + pathWidth*6 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight() + WALL_22.getHeight(), 
+            wd[10][0],
+            wd[10][1]
+            );
+        g.fillRect(WALL_27.getX(), WALL_27.getY(), WALL_27.getWidth(), WALL_27.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_28 = new Rectangle(
+            offsetX + pathWidth + WALL_27.getWidth(),
+            offsetY + pathWidth*5 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight(), 
+            wd[8][0],
+            wd[8][1]
+            );
+        g.fillRect(WALL_28.getX(), WALL_28.getY(), WALL_28.getWidth(), WALL_28.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_29 = new Rectangle(
+            offsetX + pathWidth*2 + sideX + WALL_1.getWidth(), 
+            offsetY + pathWidth*6 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight() + WALL_22.getHeight(), 
+            wd[13][0],
+            wd[13][1]
+            );
+        g.fillRect(WALL_29.getX(), WALL_29.getY(), WALL_29.getWidth(), WALL_29.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_30 = new Rectangle(
+            offsetX + pathWidth*3 + sideX + WALL_6.getWidth() + WALL_7.getWidth(),
+            offsetY + pathWidth*6 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight() + WALL_22.getHeight(), 
+            wd[9][0],
+            wd[9][1]
+            );
+        g.fillRect(WALL_30.getX(), WALL_30.getY(), WALL_30.getWidth(), WALL_30.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_31 = new Rectangle(
+            offsetX + pathWidth*4 + sideX + WALL_6.getWidth() + WALL_7.getWidth() + WALL_8.getWidth(), 
+            offsetY + pathWidth*6 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight() + WALL_22.getHeight(), 
+            wd[13][0],
+            wd[13][1]
+            );
+        g.fillRect(WALL_31.getX(), WALL_31.getY(), WALL_31.getWidth(), WALL_31.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_32 = new Rectangle(
+            offsetX + pathWidth*5 + sideX + WALL_1.getWidth()*3 + WALL_3.getWidth(), 
+            offsetY + pathWidth*5 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight(), 
+            wd[8][0],
+            wd[8][1]
+            );
+        g.fillRect(WALL_32.getX(), WALL_32.getY(), WALL_32.getWidth(), WALL_32.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_33 = new Rectangle(
+            offsetX + pathWidth*6 + WALL_27.getWidth() + WALL_28.getWidth()*2 + WALL_29.getWidth()*2 + WALL_30.getWidth(),
+            offsetY + pathWidth*6 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight() + WALL_22.getHeight(), 
+            wd[10][0],
+            wd[10][1]
+            );
+        g.fillRect(WALL_33.getX(), WALL_33.getY(), WALL_33.getWidth(), WALL_33.getHeight());
+        
+        
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        
+        
+        WALL_34 = new Rectangle(
+            offsetX + pathWidth + sideX,
+            offsetY + pathWidth*7 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight() + WALL_22.getHeight() + WALL_27.getHeight(), 
+            wd[12][0],
+            wd[12][1]
+            );
+        g.fillRect(WALL_34.getX(), WALL_34.getY(), WALL_34.getWidth(), WALL_34.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_35 = new Rectangle(
+            offsetX + pathWidth*2 + WALL_11.getWidth() + WALL_7.getWidth() + WALL_12.getWidth() + multiplier, 
+            offsetY + pathWidth*6 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight() + WALL_22.getHeight() + WALL_30.getHeight() - multiplier, 
+            wd[3][0],
+            wd[3][1]
+            );
+        g.fillRect(WALL_35.getX(), WALL_35.getY(), WALL_35.getWidth(), WALL_35.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_36 = new Rectangle(
+            offsetX + pathWidth*4 + sideX + WALL_1.getWidth()*2 + WALL_3.getWidth(), 
+            offsetY + pathWidth*7 + sideY + WALL_1.getHeight() + WALL_6.getHeight() + WALL_11.getHeight() + WALL_16.getHeight() + WALL_22.getHeight() + WALL_27.getHeight(), 
+            wd[12][0],
+            wd[12][1]
+            );
+        g.fillRect(WALL_36.getX(), WALL_36.getY(), WALL_36.getWidth(), WALL_36.getHeight());
         
         
         
@@ -720,7 +908,7 @@ public class ProgettoLabirynt extends Application {
         walls.add(WALL_13);
         walls.add(WALL_14);
         walls.add(WALL_15);
-        /*walls.add(WALL_16);
+        walls.add(WALL_16);
         walls.add(WALL_17);
         walls.add(WALL_18);
         walls.add(WALL_19);
@@ -733,7 +921,14 @@ public class ProgettoLabirynt extends Application {
         walls.add(WALL_26);
         walls.add(WALL_27);
         walls.add(WALL_28);
-        walls.add(WALL_29);*/
+        walls.add(WALL_29);
+        walls.add(WALL_30);
+        walls.add(WALL_31);
+        walls.add(WALL_32);
+        walls.add(WALL_33);
+        walls.add(WALL_34);
+        walls.add(WALL_35);
+        walls.add(WALL_36);
     }
 
     
