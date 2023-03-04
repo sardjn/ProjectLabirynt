@@ -16,7 +16,10 @@ The 1st number in the format N:N represents the wall type.
 The 2nd number, represents the wall id (which is a number between 1 and 36)
 
 <div align="center">
-  <img width="600" src="./images/MapKeysNumbered.png" alt="mapKeys">
+  <p>
+    <img width="300" src="./images/MapKeysNumbered.png" alt="mapKeys">
+    <img width="300" src="./images/MapNoKeys.png" alt="mapNoKeys">
+  </p>
 </div>
 
 ### Notes
