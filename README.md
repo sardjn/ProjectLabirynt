@@ -4,7 +4,6 @@
 
 
 ## Game Map (with keys)
-- ![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png) `#f03c15`
 ❗️Numbers in the rectangles, are linked to the code.
 ``` java:
 WallsData matrix[][] -> this matrix contains all the values for the walls WIDTH and HEIGHT
