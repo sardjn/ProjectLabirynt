@@ -9,8 +9,6 @@ package progettolabirynt;
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -36,18 +34,21 @@ import javafx.stage.Stage;
 public class ProgettoLabirynt extends Application {
     
     private boolean NOCLIP = false;
+    private final double FPS = 10;
+    private final double ANIMATION_DURATION = 0.5;
     
     private final double multiplier = 4.25;
     private final double dimensions[] = getDimensions();
     private final double bordersX = 70 * multiplier;
     private final double bordersY = 5 * multiplier;
-    private final double speed = 50 * multiplier;
+    private final double speed = 30 * multiplier;
     
     private Canvas canvas;
     private final double width = dimensions[0] + bordersX*2;
     private final double height = dimensions[1] + bordersY*2;
     
     // coordinata (Y) delle due uscite, da cui pacman si teletrasporta
+    private final double exitX = bordersX;
     private final double exitY = 102 * multiplier + bordersY;
     private final double vBoxDim = speed*1.5;
     private int vboxDir;
@@ -133,27 +134,28 @@ public class ProgettoLabirynt extends Application {
         
         //gestione sprite per pacman
         Sprite pacman = new Sprite();
+        double pixSize = 9.5;
         
         // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction RIGHT
         Image[] pSprites_RIGHT = new Image[3];
-        pSprites_RIGHT[0] = new Image("progettolabirynt/images/pacman1.png", 10*multiplier, 10*multiplier, false, false);
-        pSprites_RIGHT[1] = new Image("progettolabirynt/images/pacman2_right.png", 10*multiplier, 10*multiplier, false, false);
-        pSprites_RIGHT[2] = new Image("progettolabirynt/images/pacman3_right.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_RIGHT[0] = new Image("progettolabirynt/images/pacman1.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        pSprites_RIGHT[1] = new Image("progettolabirynt/images/pacman2_right.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        pSprites_RIGHT[2] = new Image("progettolabirynt/images/pacman3_right.png", pixSize*multiplier, pixSize*multiplier, false, false);
         // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction LEFT
         Image[] pSprites_LEFT = new Image[3];
         pSprites_LEFT[0] = pSprites_RIGHT[0];
-        pSprites_LEFT[1] = new Image("progettolabirynt/images/pacman2_left.png", 10*multiplier, 10*multiplier, false, false);
-        pSprites_LEFT[2] = new Image("progettolabirynt/images/pacman3_left.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_LEFT[1] = new Image("progettolabirynt/images/pacman2_left.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        pSprites_LEFT[2] = new Image("progettolabirynt/images/pacman3_left.png", pixSize*multiplier, pixSize*multiplier, false, false);
         // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction UP
         Image[] pSprites_UP = new Image[3];
         pSprites_UP[0] = pSprites_RIGHT[0];
-        pSprites_UP[1] = new Image("progettolabirynt/images/pacman2_up.png", 10*multiplier, 10*multiplier, false, false);
-        pSprites_UP[2] = new Image("progettolabirynt/images/pacman3_up.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_UP[1] = new Image("progettolabirynt/images/pacman2_up.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        pSprites_UP[2] = new Image("progettolabirynt/images/pacman3_up.png", pixSize*multiplier, pixSize*multiplier, false, false);
         // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction LOW
         Image[] pSprites_LOW = new Image[3];
         pSprites_LOW[0] = pSprites_RIGHT[0];
-        pSprites_LOW[1] = new Image("progettolabirynt/images/pacman2_low.png", 10*multiplier, 10*multiplier, false, false);
-        pSprites_LOW[2] = new Image("progettolabirynt/images/pacman3_low.png", 10*multiplier, 10*multiplier, false, false);
+        pSprites_LOW[1] = new Image("progettolabirynt/images/pacman2_low.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        pSprites_LOW[2] = new Image("progettolabirynt/images/pacman3_low.png", pixSize*multiplier, pixSize*multiplier, false, false);
         // ------------------------------------------------------------------------------------------------------------------------------------ set startup sprites
         pacman.setMultipleImage(pSprites_RIGHT);
         pacman.setPosition((int)(width/2 - pacman.getWidth()*2), (int)(height/2 + 11*multiplier));
@@ -195,13 +197,13 @@ public class ProgettoLabirynt extends Application {
         //pacman.render(gc);
         
         // values and stuff
-        LongValue lastNanoTime = new LongValue( System.nanoTime() );
-        IntValue score = new IntValue(0);
+        LongValue lastNanoTime = new LongValue(System.nanoTime());
         
         
         // create all the collision boxes (players and walls)
         createCollisionBoxes(gc);
         VectorBox vectBox = new VectorBox(pacman.getPositionX(), pacman.getPositionY(), pacman.getWidth(), pacman.getHeight());
+
         
         new AnimationTimer()
         {
@@ -282,8 +284,8 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 
-                background.render(gc);
-                bg.render(gc);
+                //background.render(gc);
+                //bg.render(gc);
                 // aggiorna il pacman
                 pacman.render(gc);
                 
@@ -294,7 +296,7 @@ public class ProgettoLabirynt extends Application {
                 
                 
                 // check if pacman is in the tunnel
-                if(pacman.getPositionY() >= exitY-10*multiplier && pacman.getPositionY() <= exitY+10*multiplier){
+                if(pacman.getPositionX() < exitX && pacman.getPositionX() > exitX+bg.getWidth()){
                     
                     if(wait == 1){
                         
@@ -342,8 +344,8 @@ public class ProgettoLabirynt extends Application {
                 }
                 
                 pacman.update(elapsedTime);
-                rBorder.render(gc);
-                lBorder.render(gc);
+                //rBorder.render(gc);
+                //lBorder.render(gc);
             }
         }.start();
         
@@ -441,13 +443,50 @@ public class ProgettoLabirynt extends Application {
     // create all the walls collision boxes (rectangles)
     private Rectangle WALL_UP;
     private Rectangle WALL_LOW;
-    private Rectangle WALL_LEFT;
-    private Rectangle WALL_RIGHT;
+    private Rectangle WALL_LEFT_UP;
+    private Rectangle WALL_RIGHT_UP;
+    private Rectangle WALL_LEFT_DOWN;
+    private Rectangle WALL_RIGHT_DOWN;
+    
+    private Rectangle WALL_1;
+    private Rectangle WALL_2;
+    private Rectangle WALL_3;
+    private Rectangle WALL_4;
+    private Rectangle WALL_5;
+    private Rectangle WALL_6;
+    private Rectangle WALL_7;
+    private Rectangle WALL_8;
+    private Rectangle WALL_9;
+    private Rectangle WALL_10;
+    private Rectangle WALL_11;
+    private Rectangle WALL_12;
+    private Rectangle WALL_13;
+    private Rectangle WALL_14;
+    private Rectangle WALL_15;
+    private Rectangle WALL_16;
+    private Rectangle WALL_17;
+    private Rectangle WALL_18;
+    private Rectangle WALL_19;
+    private Rectangle WALL_20;
+    private Rectangle WALL_21;
+    private Rectangle WALL_22;
+    private Rectangle WALL_23;
+    private Rectangle WALL_24;
+    private Rectangle WALL_25;
+    private Rectangle WALL_26;
+    private Rectangle WALL_27;
+    private Rectangle WALL_28;
+    private Rectangle WALL_29;
+
     
     private ArrayList<Rectangle> walls = null;
     
     private void createCollisionBoxes(GraphicsContext g){
         
+        WallsData data = new WallsData(multiplier);
+        double wd[][] = data.getDataFromMatrix(); // get the walls width and height
+        
+        double pathWidth = 10 * multiplier;
         double ex, ey;
         double spessore = 6*multiplier; // spessore del muro in pixel
                                                                                     /*      Rectangle rect = new Rectangle(cornerUpLeftX, cornerUpLeftY, width, height)     */
@@ -458,19 +497,199 @@ public class ProgettoLabirynt extends Application {
         // create walls' collision boxes
         ex = width-bordersX*2 - 2*multiplier;
         ey = spessore;
-        WALL_UP = new Rectangle(bordersX+multiplier, bordersY+multiplier, ex, ey);
+        WALL_UP = new Rectangle(
+                bordersX+multiplier, 
+                bordersY+multiplier, 
+                ex, 
+                ey
+                );
         g.fillRect(WALL_UP.getX(), WALL_UP.getY(), ex, ey);                                 // upper wall
         // ---------------------------------------------------------------------------------------------------------
-        WALL_LOW = new Rectangle(bordersX+multiplier, height-bordersY-spessore-multiplier, ex, ey);
+        WALL_LOW = new Rectangle(
+                bordersX+multiplier, 
+                height-bordersY-spessore-multiplier, 
+                ex, 
+                ey
+                );
         g.fillRect(WALL_LOW.getX(), WALL_LOW.getY(), ex, ey);                               // upper wall
         // ---------------------------------------------------------------------------------------------------------
         ex = spessore;
-        ey = height-bordersY*2 - 2*multiplier;
-        WALL_LEFT = new Rectangle(bordersX+multiplier, bordersY+multiplier, ex, ey);
-        g.fillRect(WALL_LEFT.getX(), WALL_LEFT.getY(), ex, ey);                             // left wall
+        ey = 77*multiplier;
+        WALL_LEFT_UP = new Rectangle(
+                bordersX + multiplier, 
+                bordersY + multiplier, 
+                ex, 
+                ey
+                );
+        g.fillRect(WALL_LEFT_UP.getX(), WALL_LEFT_UP.getY(), ex, ey);                       // left wall up
         // ---------------------------------------------------------------------------------------------------------
-        WALL_RIGHT = new Rectangle(width-bordersX-spessore-multiplier, bordersY+multiplier, ex, ey);
-        g.fillRect(WALL_RIGHT.getX(), WALL_RIGHT.getY(), ex, ey);                           // right wall
+        WALL_RIGHT_UP = new Rectangle(
+                width - bordersX - spessore - multiplier, 
+                bordersY + multiplier, 
+                ex, 
+                ey
+                );
+        g.fillRect(WALL_RIGHT_UP.getX(), WALL_RIGHT_UP.getY(), ex, ey);                     // right wall up
+        // ---------------------------------------------------------------------------------------------------------
+        WALL_LEFT_DOWN = new Rectangle(
+                bordersX + multiplier, 
+                142*multiplier, 
+                ex, 
+                ey
+                );
+        g.fillRect(WALL_LEFT_DOWN.getX(), WALL_LEFT_DOWN.getY(), ex, ey);                   // left wall down
+        // ---------------------------------------------------------------------------------------------------------
+        WALL_RIGHT_DOWN = new Rectangle(
+                width - bordersX - spessore - multiplier, 
+                142*multiplier, 
+                ex, 
+                ey
+                );
+        g.fillRect(WALL_RIGHT_DOWN.getX(), WALL_RIGHT_DOWN.getY(), ex, ey);                 // right wall down
+        
+        
+        
+        // --------------------------------------------------------------------------------------------------------- inner walls (using inner walls data)
+        
+        double offsetX = bordersX + multiplier;
+        double offsetY = bordersY + multiplier;
+        double sideX = WALL_LEFT_UP.getWidth();
+        double sideY = WALL_UP.getHeight();
+        
+        WALL_1 = new Rectangle(
+            offsetX + pathWidth + sideX, 
+            offsetY + pathWidth + sideY, 
+            wd[0][0], 
+            wd[0][1]
+            );
+        g.fillRect(WALL_1.getX(), WALL_1.getY(), WALL_1.getWidth(), WALL_1.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_2 = new Rectangle(
+            offsetX + pathWidth*2 + sideX + WALL_1.getWidth(), 
+            offsetY + pathWidth + sideY, 
+            wd[0][0], 
+            wd[0][1]
+            );
+        g.fillRect(WALL_2.getX(), WALL_2.getY(), WALL_2.getWidth(), WALL_2.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_3 = new Rectangle(
+            offsetX + pathWidth*3 + sideX + WALL_1.getWidth()*2, 
+            offsetY + sideY, 
+            wd[5][0], 
+            wd[5][1]
+            );
+        g.fillRect(WALL_3.getX(), WALL_3.getY(), WALL_3.getWidth(), WALL_3.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_4 = new Rectangle(
+            offsetX + pathWidth*4 + sideX + WALL_1.getWidth()*2 + WALL_3.getWidth(), 
+            offsetY + pathWidth + sideY,
+            wd[0][0], 
+            wd[0][1]
+            );
+        g.fillRect(WALL_4.getX(), WALL_4.getY(), WALL_4.getWidth(), WALL_4.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_5 = new Rectangle(
+            offsetX + pathWidth*5 + sideX + WALL_1.getWidth()*3 + WALL_3.getWidth(), 
+            offsetY + pathWidth + sideY, 
+            wd[0][0], 
+            wd[0][1]
+            );
+        g.fillRect(WALL_5.getX(), WALL_5.getY(), WALL_5.getWidth(), WALL_5.getHeight());
+        
+        
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        
+        
+        WALL_6 = new Rectangle(
+            offsetX + pathWidth + sideX, 
+            offsetY + pathWidth*2 + sideY + WALL_1.getHeight(), 
+            wd[1][0],
+            wd[1][1]
+            );
+        g.fillRect(WALL_6.getX(), WALL_6.getY(), WALL_6.getWidth(), WALL_6.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_7 = new Rectangle(
+            offsetX + pathWidth*2 + sideX + WALL_6.getWidth(),
+            offsetY + pathWidth*2 + sideY + WALL_1.getHeight(), 
+            wd[6][0], 
+            wd[6][1]
+            );
+        g.fillRect(WALL_7.getX(), WALL_7.getY(), WALL_7.getWidth(), WALL_7.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_8 = new Rectangle(
+            offsetX + pathWidth*3 + sideX + WALL_6.getWidth() + WALL_7.getWidth(), 
+            offsetY + pathWidth*2 + sideY + WALL_1.getHeight(), 
+            wd[2][0], 
+            wd[2][1]
+            );
+        g.fillRect(WALL_8.getX(), WALL_8.getY(), WALL_8.getWidth(), WALL_8.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_9 = new Rectangle(
+            offsetX + pathWidth*4 + sideX + WALL_6.getWidth() + WALL_7.getWidth() + WALL_8.getWidth(), 
+            offsetY + pathWidth*2 + sideY + WALL_1.getHeight(), 
+            wd[6][0], 
+            wd[6][1]
+            );
+        g.fillRect(WALL_9.getX(), WALL_9.getY(), WALL_9.getWidth(), WALL_9.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_10 = new Rectangle(
+            offsetX + pathWidth*5 + sideX + WALL_1.getWidth()*3 + WALL_3.getWidth(), 
+            offsetY + pathWidth*2 + sideY + WALL_1.getHeight(), 
+            wd[1][0], 
+            wd[1][1]
+            );
+        g.fillRect(WALL_10.getX(), WALL_10.getY(), WALL_10.getWidth(), WALL_10.getHeight());
+        
+        
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        
+        WALL_11 = new Rectangle(
+            offsetX, 
+            offsetY + pathWidth*3 + sideY + WALL_1.getHeight() + WALL_6.getHeight(), 
+            wd[4][0],
+            wd[4][1]
+            );
+        g.fillRect(WALL_11.getX(), WALL_11.getY(), WALL_11.getWidth(), WALL_11.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_12 = new Rectangle(
+            offsetX + WALL_11.getWidth() + pathWidth + WALL_7.getWidth(), 
+            offsetY + sideY + pathWidth*3 + WALL_2.getHeight() + WALL_8.getHeight(), 
+            wd[7][0], 
+            wd[7][1]
+            );
+        g.fillRect(WALL_12.getX(), WALL_12.getY(), WALL_12.getWidth(), WALL_12.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_13 = new Rectangle(
+            offsetX + pathWidth*2 + WALL_11.getWidth() + WALL_7.getWidth() + WALL_12.getWidth(), 
+            offsetY + sideY + pathWidth + WALL_3.getHeight() + WALL_8.getHeight(), 
+            wd[3][0], 
+            wd[3][1]
+            );
+        g.fillRect(WALL_13.getX(), WALL_13.getY(), WALL_13.getWidth(), WALL_13.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_14 = new Rectangle(
+            offsetX + pathWidth*3 + WALL_11.getWidth() + WALL_7.getWidth() + WALL_12.getWidth() + WALL_13.getWidth() + 2*multiplier, 
+            offsetY + sideY + pathWidth*3 + WALL_2.getHeight() + WALL_8.getHeight(), 
+            wd[7][0], 
+            wd[7][1]
+            );
+        g.fillRect(WALL_14.getX(), WALL_14.getY(), WALL_14.getWidth(), WALL_14.getHeight());
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        WALL_15 = new Rectangle(
+            offsetX + pathWidth*5 + sideX + WALL_1.getWidth()*3 + WALL_3.getWidth(), 
+            offsetY + pathWidth*3 + sideY + WALL_1.getHeight() + WALL_6.getHeight(), 
+            wd[4][0], 
+            wd[4][1]
+            );
+        g.fillRect(WALL_15.getX(), WALL_15.getY(), WALL_15.getWidth(), WALL_15.getHeight());
+        
+        
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        
+        
+        //new walls
+        
         
         
         
@@ -482,8 +701,39 @@ public class ProgettoLabirynt extends Application {
         walls = new ArrayList<>();
         walls.add(WALL_UP);
         walls.add(WALL_LOW);
-        walls.add(WALL_LEFT);
-        walls.add(WALL_RIGHT);
+        walls.add(WALL_LEFT_UP);
+        walls.add(WALL_RIGHT_UP);
+        walls.add(WALL_LEFT_DOWN);
+        walls.add(WALL_RIGHT_DOWN);
+        walls.add(WALL_1);
+        walls.add(WALL_2);
+        walls.add(WALL_3);
+        walls.add(WALL_4);
+        walls.add(WALL_5);
+        walls.add(WALL_6);
+        walls.add(WALL_7);
+        walls.add(WALL_8);
+        walls.add(WALL_9);
+        walls.add(WALL_10);
+        walls.add(WALL_11);
+        walls.add(WALL_12);
+        walls.add(WALL_13);
+        walls.add(WALL_14);
+        walls.add(WALL_15);
+        /*walls.add(WALL_16);
+        walls.add(WALL_17);
+        walls.add(WALL_18);
+        walls.add(WALL_19);
+        walls.add(WALL_20);
+        walls.add(WALL_21);
+        walls.add(WALL_22);
+        walls.add(WALL_23);
+        walls.add(WALL_24);
+        walls.add(WALL_25);
+        walls.add(WALL_26);
+        walls.add(WALL_27);
+        walls.add(WALL_28);
+        walls.add(WALL_29);*/
     }
 
     
