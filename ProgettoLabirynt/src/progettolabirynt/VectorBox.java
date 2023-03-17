@@ -92,5 +92,7 @@ public class VectorBox {
         vectorBox.setHeight(height);
     }
     
-    
+    public Rectangle getRect(){
+        return this.vectorBox;
+    }
 }

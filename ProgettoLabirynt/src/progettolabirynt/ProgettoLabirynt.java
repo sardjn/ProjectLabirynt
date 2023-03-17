@@ -52,6 +52,7 @@ public class ProgettoLabirynt extends Application {
     private final double exitY = 102 * multiplier + bordersY;
     private final double vBoxDim = speed*1.5;
     private int vboxDir;
+    private int dirVboxDir;
     
     
     /*
@@ -196,7 +197,8 @@ public class ProgettoLabirynt extends Application {
         // create all the collision boxes (players and walls)
         createCollisionBoxes(gc);
         VectorBox vectBox = new VectorBox(pacman.getPositionX(), pacman.getPositionY(), pacman.getWidth(), pacman.getHeight());
-
+        VectorBox directionVectBox = new VectorBox(pacman.getPositionX(), pacman.getPositionY(), pacman.getWidth(), pacman.getHeight());
+        
         // AtomicBoolean once = new AtomicBoolean(true);
         
         new AnimationTimer()
@@ -214,6 +216,7 @@ public class ProgettoLabirynt extends Application {
             {
                 // Firstly, update the VBox
                 updateVBox(vectBox, pacman);
+                //gc.fillRect(vectBox.getX(), vectBox.getY(), vectBox.getWidth(), vectBox.getHeight());
                 
                 if(!isPacmanAlive){
                     System.exit(0);
@@ -222,44 +225,83 @@ public class ProgettoLabirynt extends Application {
                 double elapsedTime = (currentNanoTime - lastNanoTime.value) / 1000000000.0;
                 lastNanoTime.value = currentNanoTime;
                 
+                updateDirVBox(directionVectBox, pacman);
+                System.out.println(isColliding(directionVectBox.getRect()));
+                /*System.out.println(isColliding(directionVectBox.getRect()) +
+                        "\nX: " + directionVectBox.getX() + " -> " + pacman.getPositionX() +
+                        "\nY: " + directionVectBox.getY() + " -> " + pacman.getPositionY() + "\n\n");*/
                 
+                
+                
+                if (input.contains("A")){
+                    if(keyWait.get() == true){
+                        //
+                    }
+                }
                 if (input.contains("LEFT")){
                     if(keyWait.get() == true){
+                        
                         pacman.setVelocity(-speed, 0);
                         pacman.setMultipleImage(pSprites_LEFT);
                         keyWait.set(false);
+
+                        vboxDir = 0;
                     }
-                    vboxDir = 0;
                 }
-                    
+                
+                
+                if (input.contains("D")){
+                    if(keyWait.get() == true){
+                        //
+                    }
+                }
                 if (input.contains("RIGHT")){
                     if(keyWait.get() == true){
+                        
                         pacman.setVelocity(speed, 0);
                         pacman.setMultipleImage(pSprites_RIGHT);
                         keyWait.set(false);
+
+                        vboxDir = 1;
                     }
-                    vboxDir = 1;
                 }
-                    
+                
+                
+                if (input.contains("W")){
+                    if(keyWait.get() == true){
+                        //
+                    }
+                }
                 if (input.contains("UP")){
                     if(keyWait.get() == true){
+                        
                         pacman.setVelocity(0,-speed);
                         pacman.setMultipleImage(pSprites_UP);
                         keyWait.set(false);
+
+                        vboxDir = 2;
                     }
-                    vboxDir = 2;
                 }
-                   
+                
+                
+                if (input.contains("S")){
+                    if(keyWait.get() == true){
+                        //
+                    }
+                }
                 if (input.contains("DOWN")){
                     if(keyWait.get() == true){
+                        
                         pacman.setVelocity(0,speed);
                         pacman.setMultipleImage(pSprites_LOW);
                         keyWait.set(false);
+
+                        vboxDir = 3;
                     }
-                    vboxDir = 3;
                 }
                 
                 
+                // actual vector box
                 switch(vboxDir){
                     case 0:
                         vectBox.setPosition(pacman.getPositionX()-pacman.getWidth(), pacman.getPositionY());
@@ -350,11 +392,32 @@ public class ProgettoLabirynt extends Application {
                 pacman.update(elapsedTime);
                 rBorder.render(gc);
                 lBorder.render(gc);
+                
+                gc.fillRect(directionVectBox.getX(), directionVectBox.getY(), directionVectBox.getWidth(), directionVectBox.getHeight());
             }
         }.start();
         
         
         stage.show();
+    }
+    
+    private void updateDirVBox(VectorBox directionVectBox, Sprite a){
+        switch(dirVboxDir){
+            case 0:
+                directionVectBox.setPosition(a.getPositionX()-a.getWidth(), a.getPositionY());
+                break;
+            case 1:
+                directionVectBox.setPosition(a.getPositionX()+a.getWidth(), a.getPositionY());
+                break;
+            case 2:
+                directionVectBox.setPosition(a.getPositionX(), a.getPositionY()-a.getHeight());
+                break;
+            case 3:
+                directionVectBox.setPosition(a.getPositionX(), a.getPositionY()+a.getHeight());
+                break;
+            default:
+                break;
+        }
     }
     
     private void updateVBox(VectorBox vb, Sprite a){
@@ -411,8 +474,19 @@ public class ProgettoLabirynt extends Application {
         return bounds1.intersects(bounds2);
     }
     
-    private int isColliding(Sprite a) {
-        Rectangle player = new Rectangle(a.getPositionX(), a.getPositionY(), a.getWidth(), a.getHeight());
+    private boolean isColliding(Rectangle rect) {
+        
+        for (Rectangle wall: walls) {
+            if (isColliding(rect, wall)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    private int isColliding(Sprite sprite) {
+        Rectangle player = new Rectangle(sprite.getPositionX(), sprite.getPositionY(), sprite.getWidth(), sprite.getHeight());
         
         for (Rectangle wall: walls) {
             if (isColliding(player, wall)) {
