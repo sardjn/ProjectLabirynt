@@ -9,6 +9,8 @@ package progettolabirynt;
 
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -26,16 +28,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
  * @author rdngrl05a04h501o
  */
 public class ProgettoLabirynt extends Application {
-    
-    private boolean NOCLIP = false;
-    private final double FPS = 10;
-    private final double ANIMATION_DURATION = 0.5;
     
     private final double multiplier = 4.25;
     private final double dimensions[] = getDimensions();
@@ -52,8 +51,9 @@ public class ProgettoLabirynt extends Application {
     private final double exitY = 102 * multiplier + bordersY;
     private final double vBoxDim = speed*1.5;
     private int vboxDir;
-    private int dirVboxDir;
+    private int vboxDirGh;
     
+    private int score = 0;
     
     /*
         int latest[2] -->   [0] = direction
@@ -96,6 +96,13 @@ public class ProgettoLabirynt extends Application {
         // ArrayList contenente gli input da tastiera (queue)
         ArrayList<String> input = new ArrayList<String>();
         
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                System.exit(0);
+            }
+        });
+        
         // gestione input
         scene.setOnKeyTyped(new EventHandler<KeyEvent>()
             {
@@ -105,11 +112,10 @@ public class ProgettoLabirynt extends Application {
                         if ( !input.contains("SPACE")){
                             input.add( "SPACE" );
                         }
-                    }
-                    
-                        
+                    }  
                 }
             });
+        
         scene.setOnKeyPressed(
             new EventHandler<KeyEvent>()
             {
@@ -133,9 +139,36 @@ public class ProgettoLabirynt extends Application {
             });
         
         
-        //gestione sprite per pacman
+        // gestione sprite per fantasmi
+        double pixSize = 6.5;
+        
+        // fantasma rosso
+        Sprite redGhost = new Sprite();
+        
+        // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction RIGHT
+        Image[] rgSprites_RIGHT = new Image[2];
+        rgSprites_RIGHT[0] = new Image("progettolabirynt/images/red_right1.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        rgSprites_RIGHT[1] = new Image("progettolabirynt/images/red_right2.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction LEFT
+        Image[] rgSprites_LEFT = new Image[2];
+        rgSprites_LEFT[0] = new Image("progettolabirynt/images/red_left1.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        rgSprites_LEFT[1] = new Image("progettolabirynt/images/red_left2.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction UP
+        Image[] rgSprites_UP = new Image[2];
+        rgSprites_UP[0] = new Image("progettolabirynt/images/red_up1.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        rgSprites_UP[1] = new Image("progettolabirynt/images/red_up2.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction DOWN
+        Image[] rgSprites_DOWN = new Image[2];
+        rgSprites_DOWN[0] = new Image("progettolabirynt/images/red_down1.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        rgSprites_DOWN[1] = new Image("progettolabirynt/images/red_down2.png", pixSize*multiplier, pixSize*multiplier, false, false);
+        // ------------------------------------------------------------------------------------------------------------------------------------
+        redGhost.setMultipleImage(rgSprites_UP);
+        redGhost.setPosition((int)(width/2 - redGhost.getWidth()*2 - 3*multiplier), (int)(height/2 - 28.5*multiplier));
+        
+        
+        // gestione sprite per pacman
         Sprite pacman = new Sprite();
-        double pixSize = 9.5;
+        pixSize = 5;
         
         // ------------------------------------------------------------------------------------------------------------------------------------ sprites for direction RIGHT
         Image[] pSprites_RIGHT = new Image[3];
@@ -161,22 +194,25 @@ public class ProgettoLabirynt extends Application {
         pacman.setMultipleImage(pSprites_RIGHT);
         pacman.setPosition((int)(width/2 - pacman.getWidth()*2 - 3*multiplier), (int)(height/2 + 11*multiplier + multiplier/2));
         
+        // thread for slowing down sprites
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                pacman.updateImage();
+                redGhost.updateImage();
+            }
+        }, 0, 60);
+        
         
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, width, height);
         
-        //creazione mappa
+        // creazione mappa
         Sprite bg = new Sprite();
         bg.setImage("progettolabirynt/images/bg-blue-empty.png", multiplier);
         bg.setPosition(bordersX, bordersY);
-        
-        Sprite rBorder = new Sprite();
-        rBorder.setImage("progettolabirynt/images/bg-borders.png", multiplier);
-        rBorder.setPosition(0, 0);
-        Sprite lBorder = new Sprite();
-        lBorder.setImage("progettolabirynt/images/bg-borders.png", multiplier);
-        lBorder.setPosition(width-bordersX, 0);
         
         
         // background color black
@@ -185,10 +221,12 @@ public class ProgettoLabirynt extends Application {
         background.setPosition(0, 0);
         
         // start the game with music, then starts the gameplay
-        //background.render(gc);
+        background.render(gc);
         bg.render(gc);
         pacman.setImage(pSprites_RIGHT[1]);
-        //pacman.render(gc);
+        pacman.render(gc);
+        redGhost.setImage(rgSprites_UP[0]);
+        redGhost.render(gc);
         
         // values and stuff
         LongValue lastNanoTime = new LongValue(System.nanoTime());
@@ -197,9 +235,22 @@ public class ProgettoLabirynt extends Application {
         // create all the collision boxes (players and walls)
         createCollisionBoxes(gc);
         VectorBox vectBox = new VectorBox(pacman.getPositionX(), pacman.getPositionY(), pacman.getWidth(), pacman.getHeight());
-        VectorBox directionVectBox = new VectorBox(pacman.getPositionX(), pacman.getPositionY(), pacman.getWidth(), pacman.getHeight());
+        VectorBox vectBoxGh = new VectorBox(redGhost.getPositionX(), redGhost.getPositionY(), redGhost.getWidth(), redGhost.getHeight());
         
-        // AtomicBoolean once = new AtomicBoolean(true);
+        
+        Timer timer1 = new Timer();
+        timer1.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // TODO
+            }
+        }, 1000, 1000);
+        
+        
+        // score text
+        Font font = Font.font("Emulogic", FontWeight.BOLD, 24);
+        gc.setFont(font);
+        
         
         new AnimationTimer()
         {
@@ -210,32 +261,40 @@ public class ProgettoLabirynt extends Application {
             // check if pacman was eaten from the ghosts
             boolean isPacmanAlive = true;
             
+            private long lastUpdate = 0;
+            
             
             @Override
             public void handle(long currentNanoTime)
             {
+                
                 // Firstly, update the VBox
                 updateVBox(vectBox, pacman);
-                //gc.fillRect(vectBox.getX(), vectBox.getY(), vectBox.getWidth(), vectBox.getHeight());
+                updateVBox(vectBoxGh, redGhost);
                 
                 if(!isPacmanAlive){
-                    System.exit(0);
+                    timer.cancel();
+                    this.stop();
                 }
                     
                 double elapsedTime = (currentNanoTime - lastNanoTime.value) / 1000000000.0;
                 lastNanoTime.value = currentNanoTime;
                 
-                updateDirVBox(directionVectBox, pacman);
-                System.out.println(isColliding(directionVectBox.getRect()));
-                /*System.out.println(isColliding(directionVectBox.getRect()) +
-                        "\nX: " + directionVectBox.getX() + " -> " + pacman.getPositionX() +
-                        "\nY: " + directionVectBox.getY() + " -> " + pacman.getPositionY() + "\n\n");*/
+                if (currentNanoTime - lastUpdate >= 100000000) { // Update score every 10ms
+                    score++;
+                    lastUpdate = currentNanoTime;
+                }
                 
                 
                 
                 if (input.contains("A")){
                     if(keyWait.get() == true){
-                        //
+                        
+                        redGhost.setVelocity(-speed, 0);
+                        redGhost.setMultipleImage(rgSprites_LEFT);
+                        keyWait.set(false);
+
+                        vboxDirGh = 0;
                     }
                 }
                 if (input.contains("LEFT")){
@@ -252,7 +311,12 @@ public class ProgettoLabirynt extends Application {
                 
                 if (input.contains("D")){
                     if(keyWait.get() == true){
-                        //
+                        
+                        redGhost.setVelocity(speed, 0);
+                        redGhost.setMultipleImage(rgSprites_RIGHT);
+                        keyWait.set(false);
+
+                        vboxDirGh = 1;
                     }
                 }
                 if (input.contains("RIGHT")){
@@ -269,7 +333,12 @@ public class ProgettoLabirynt extends Application {
                 
                 if (input.contains("W")){
                     if(keyWait.get() == true){
-                        //
+                        
+                        redGhost.setVelocity(0,-speed);
+                        redGhost.setMultipleImage(rgSprites_UP);
+                        keyWait.set(false);
+
+                        vboxDirGh = 2;
                     }
                 }
                 if (input.contains("UP")){
@@ -286,7 +355,12 @@ public class ProgettoLabirynt extends Application {
                 
                 if (input.contains("S")){
                     if(keyWait.get() == true){
-                        //
+                        
+                        redGhost.setVelocity(0,speed);
+                        redGhost.setMultipleImage(rgSprites_DOWN);
+                        keyWait.set(false);
+
+                        vboxDirGh = 3;
                     }
                 }
                 if (input.contains("DOWN")){
@@ -319,105 +393,101 @@ public class ProgettoLabirynt extends Application {
                         break;
                 }
                 
+                switch(vboxDirGh){
+                    case 0:
+                        vectBoxGh.setPosition(redGhost.getPositionX()-redGhost.getWidth(), redGhost.getPositionY());
+                        break;
+                    case 1:
+                        vectBoxGh.setPosition(redGhost.getPositionX()+redGhost.getWidth(), redGhost.getPositionY());
+                        break;
+                    case 2:
+                        vectBoxGh.setPosition(redGhost.getPositionX(), redGhost.getPositionY()-redGhost.getHeight());
+                        break;
+                    case 3:
+                        vectBoxGh.setPosition(redGhost.getPositionX(), redGhost.getPositionY()+redGhost.getHeight());
+                        break;
+                    default:
+                        break;
+                }
+                
                 
                 background.render(gc);
                 bg.render(gc);
-                // aggiorna il pacman
+                // aggiorna il pacman e fantasma
                 pacman.render(gc);
+                redGhost.render(gc);
+                // gc.fillRect(vectBoxGh.getX(), vectBoxGh.getY(), vectBoxGh.getWidth(), vectBoxGh.getHeight());
+                // gc.fillRect(vectBox.getX(), vectBox.getY(), vectBox.getWidth(), vectBox.getHeight());
                 
-                int collision = isColliding(pacman);
-                int direction = latest[0];
-                int wait = latest[1];
+                
+                int collision = isColliding(pacman, 0);
+                int collisionGh = isColliding(redGhost, 1);
                 double mult = 3;
                 
-                
                 // check if pacman is in the tunnel
-                if(pacman.getPositionX() < exitX && pacman.getPositionX() > exitX+bg.getWidth()){
-                    
-                    if(wait == 1){
-                        
-                        /*if(once.get() == true){
-                            pacman.setVelocity(pacman.getVelocityX() / 3, 0);
-                            once.set(false);
-                        }*/
+                if((pacman.getPositionY() > exitY && pacman.getPositionY()+pacman.getHeight() < exitY+10*multiplier) 
+                        && (pacman.getPositionX() < bg.getPositionX()+10*multiplier || pacman.getPositionX()+pacman.getWidth() > bg.getPositionX()+bg.getWidth()-10*multiplier)
+                        ){
+
+                    if(latest[1] == 1){
                         
                         if(pacman.getPositionX()+pacman.getWidth() < bg.getPositionX()){
-                            teleport(pacman, collision, bg.getWidth());
+                            teleport(pacman, 1, bg.getWidth());
                             latest[0] = 0;
                             latest[1] = 0;
                         }
                         
                         else if(pacman.getPositionX() > bg.getPositionX()+bg.getWidth()){
-                            teleport(pacman, collision, bg.getWidth());
+                            teleport(pacman, 0, bg.getWidth());
                             latest[0] = 1;
                             latest[1] = 0;
                         }
                         
                     }
                     
-                    else if(wait == 0){
+                    else if(latest[1] == 0){
                         
                         //  in order to avoid perpetual teleport, lets add an if block to understand
                         //  if pacman has crossed the map already (using 'latest' array (int))          
                         
-                        
-                        switch(direction){
+                        switch(latest[0]){
                             case 0:
-                                if(pacman.getPositionX()+pacman.getWidth()+multiplier < bg.getPositionX()+bg.getWidth()){
+                                if(pacman.getPositionX()+pacman.getWidth() < bg.getPositionX()+bg.getWidth()){
                                     latest[1] = 1;
-                                    /*pacman.setVelocity(pacman.getVelocityX() * 3, 0);
-                                    once.set(true);*/
                                 }
                                 break;
                                 
                             case 1:
-                                if(pacman.getPositionX()+pacman.getWidth() > bg.getPositionX()+multiplier){
+                                if(pacman.getPositionX()+pacman.getWidth() > bg.getPositionX()){
                                     latest[1] = 1;
-                                    /*pacman.setVelocity(pacman.getVelocityX() * 3, 0);
-                                    once.set(true);*/
                                 }
-                                break;
-                                
-                            // default used in case 'latest[1]' isn't valid (bug avoiding)
-                            default:
-                                latest[0] = 0;
                                 break;
                         }
                     }
                     
-                }else if (collision != -1){
+                }else if (collision != -1){ //System.out.println("pm: " + collision);
                     riposiziona(pacman, collision);
                 }
                 
-                pacman.update(elapsedTime);
-                rBorder.render(gc);
-                lBorder.render(gc);
+                //System.out.println(latest[1]);
                 
-                gc.fillRect(directionVectBox.getX(), directionVectBox.getY(), directionVectBox.getWidth(), directionVectBox.getHeight());
+                if (collisionGh != -1){ //System.out.println("gh: " + collisionGh);
+                    riposiziona(redGhost, collisionGh);
+                }
+                
+                pacman.update(elapsedTime);
+                redGhost.update(elapsedTime);
+                
+                if(pacman.intersects(redGhost)){
+                    isPacmanAlive = false;
+                }
+                
+                String s = Integer.toString(score);
+                gc.fillText("SCORE: " + s, 30, 30);
             }
         }.start();
         
-        
         stage.show();
-    }
-    
-    private void updateDirVBox(VectorBox directionVectBox, Sprite a){
-        switch(dirVboxDir){
-            case 0:
-                directionVectBox.setPosition(a.getPositionX()-a.getWidth(), a.getPositionY());
-                break;
-            case 1:
-                directionVectBox.setPosition(a.getPositionX()+a.getWidth(), a.getPositionY());
-                break;
-            case 2:
-                directionVectBox.setPosition(a.getPositionX(), a.getPositionY()-a.getHeight());
-                break;
-            case 3:
-                directionVectBox.setPosition(a.getPositionX(), a.getPositionY()+a.getHeight());
-                break;
-            default:
-                break;
-        }
     }
     
     private void updateVBox(VectorBox vb, Sprite a){
@@ -429,12 +499,12 @@ public class ProgettoLabirynt extends Application {
     private void teleport(Sprite a, int x, double distance){
         
         switch(x){
-            case 0:
-                a.setPosition(a.getPositionX()-distance-a.getWidth()*1.5, a.getPositionY());
+            case 0: // <--|
+                a.setPosition(a.getPositionX()-distance-a.getWidth()*1.5 + 10*multiplier, a.getPositionY());
                 a.setVelocity(speed, 0);
                 break;
-            case 1:
-                a.setPosition(a.getPositionX()+distance+a.getWidth()*1.5, a.getPositionY());
+            case 1: // |-->
+                a.setPosition(a.getPositionX()+distance+a.getWidth()*1.5 - 10*multiplier, a.getPositionY());
                 a.setVelocity(-speed, 0);
                 break;
             default:
@@ -473,44 +543,45 @@ public class ProgettoLabirynt extends Application {
 
         return bounds1.intersects(bounds2);
     }
-    
-    private boolean isColliding(Rectangle rect) {
         
-        for (Rectangle wall: walls) {
-            if (isColliding(rect, wall)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    
-    private int isColliding(Sprite sprite) {
+    private int isColliding(Sprite sprite, int id) {
         Rectangle player = new Rectangle(sprite.getPositionX(), sprite.getPositionY(), sprite.getWidth(), sprite.getHeight());
         
         for (Rectangle wall: walls) {
             if (isColliding(player, wall)) {
-                return whereCollision(player, wall);
+                return whereCollision(player, wall, id);
             }
         }
 
         return -1;
     }
     
-    private int whereCollision(Rectangle a, Rectangle wall){
+    private int whereCollision(Rectangle a, Rectangle wall, int id){
         
         double playerPos[] = {a.getX(), a.getY(), a.getX()+a.getWidth(), a.getY()+a.getHeight()}; // startX, startY, endX, endY
         double wallPos[] = {wall.getX(), wall.getY(), wall.getX()+wall.getWidth(), wall.getY()+wall.getHeight()}; // startX, startY, endX, endY
         
         // check on which side the player is colliding
-        if(playerPos[2] > wallPos[0] && vboxDir == 1){
-            return 0;
-        }else if(playerPos[0] < wallPos[2] && vboxDir == 0){
-            return 1;
-        }else if(playerPos[1] < wallPos[3] && vboxDir == 2){
-            return 2;
-        }else if(playerPos[3] > wallPos[1] && vboxDir == 3){
-            return 3;
+        if(id == 0){ // pacman
+            if(playerPos[2] > wallPos[0] && vboxDir == 1){
+                return 0;
+            }else if(playerPos[0] < wallPos[2] && vboxDir == 0){
+                return 1;
+            }else if(playerPos[1] < wallPos[3] && vboxDir == 2){
+                return 2;
+            }else if(playerPos[3] > wallPos[1] && vboxDir == 3){
+                return 3;
+            }
+        }else if(id == 1){
+            if(playerPos[2] > wallPos[0] && vboxDirGh == 1){
+                return 0;
+            }else if(playerPos[0] < wallPos[2] && vboxDirGh == 0){
+                return 1;
+            }else if(playerPos[1] < wallPos[3] && vboxDirGh == 2){
+                return 2;
+            }else if(playerPos[3] > wallPos[1] && vboxDirGh == 3){
+                return 3;
+            }
         }
         
         // r, l, u, b
