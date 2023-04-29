@@ -8,10 +8,13 @@
 package progettolabirynt;
 
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -23,6 +26,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -53,7 +57,7 @@ public class ProgettoLabirynt extends Application {
     private int vboxDir;
     private int vboxDirGh;
     
-    private int score = 0;
+    private double score = 0;
     
     /*
         int latest[2] -->   [0] = direction
@@ -72,9 +76,10 @@ public class ProgettoLabirynt extends Application {
         launch(args);
     }
     
+    private boolean goingToTheMall = false;
+    
     @Override
     public void start(Stage stage) throws Exception {
-    
         AtomicBoolean keyWait = new AtomicBoolean(true); // used on key release
         
         /* dichiara canvas   */
@@ -242,27 +247,35 @@ public class ProgettoLabirynt extends Application {
         timer1.schedule(new TimerTask() {
             @Override
             public void run() {
-                // TODO
+                if((pacman.getVelocityX() != 0 || pacman.getVelocityY() != 0) && !goingToTheMall){
+                    soundPlayer.chomp();
+                }
             }
-        }, 1000, 1000);
+        }, 1000, 600);
+        
+        Timer timer2 = new Timer();
+        timer2.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(!goingToTheMall){
+                    soundPlayer.ghost();
+                    double xv = redGhost.getVelocityX() * 10;
+                    double yv = redGhost.getVelocityY() * 10;
+                    redGhost.setVelocity(xv, yv);
+                }
+            }
+        }, 5000, 5000);
         
         
         // score text
-        Font font = Font.font("Emulogic", FontWeight.BOLD, 24);
+        Font font = Font.loadFont("file:///C:/Users/HP/OneDrive/Desktop/githubbo/Pacman REVERSE/ProgettoLabirynt/emulogic.ttf", 12);
         gc.setFont(font);
+        gc.setFill(Color.WHITE);
         
         
         new AnimationTimer()
         {
-            
-            // when pacman is not able to eat ghosts
-            boolean isPacmanWeak = true;
-            
-            // check if pacman was eaten from the ghosts
-            boolean isPacmanAlive = true;
-            
             private long lastUpdate = 0;
-            
             
             @Override
             public void handle(long currentNanoTime)
@@ -271,17 +284,14 @@ public class ProgettoLabirynt extends Application {
                 // Firstly, update the VBox
                 updateVBox(vectBox, pacman);
                 updateVBox(vectBoxGh, redGhost);
-                
-                if(!isPacmanAlive){
-                    timer.cancel();
-                    this.stop();
-                }
                     
                 double elapsedTime = (currentNanoTime - lastNanoTime.value) / 1000000000.0;
                 lastNanoTime.value = currentNanoTime;
                 
-                if (currentNanoTime - lastUpdate >= 100000000) { // Update score every 10ms
-                    score++;
+                if (currentNanoTime - lastUpdate >= 1000000) {
+                    if(pacman.getVelocityX() != 0 || pacman.getVelocityY() != 0){
+                        score += 0.01;
+                    }
                     lastUpdate = currentNanoTime;
                 }
                 
@@ -422,7 +432,6 @@ public class ProgettoLabirynt extends Application {
                 
                 int collision = isColliding(pacman, 0);
                 int collisionGh = isColliding(redGhost, 1);
-                double mult = 3;
                 
                 // check if pacman is in the tunnel
                 if((pacman.getPositionY() > exitY && pacman.getPositionY()+pacman.getHeight() < exitY+10*multiplier) 
@@ -469,21 +478,83 @@ public class ProgettoLabirynt extends Application {
                     riposiziona(pacman, collision);
                 }
                 
-                //System.out.println(latest[1]);
-                
-                if (collisionGh != -1){ //System.out.println("gh: " + collisionGh);
-                    riposiziona(redGhost, collisionGh);
+                if((redGhost.getPositionY() > exitY && redGhost.getPositionY()+redGhost.getHeight() < exitY+10*multiplier) 
+                        && (redGhost.getPositionX() < bg.getPositionX()+10*multiplier || redGhost.getPositionX()+redGhost.getWidth() > bg.getPositionX()+bg.getWidth()-10*multiplier)
+                        ){
+
+                    if(latest[1] == 1){
+                        
+                        if(redGhost.getPositionX()+redGhost.getWidth() < bg.getPositionX()){
+                            teleport(pacman, 1, bg.getWidth());
+                            latest[0] = 0;
+                            latest[1] = 0;
+                        }
+                        
+                        else if(redGhost.getPositionX() > bg.getPositionX()+bg.getWidth()){
+                            teleport(redGhost, 0, bg.getWidth());
+                            latest[0] = 1;
+                            latest[1] = 0;
+                        }
+                        
+                    }
+                    
+                    else if(latest[1] == 0){
+                        
+                        //  in order to avoid perpetual teleport, lets add an if block to understand
+                        //  if pacman has crossed the map already (using 'latest' array (int))          
+                        
+                        switch(latest[0]){
+                            case 0:
+                                if(redGhost.getPositionX()+redGhost.getWidth() < bg.getPositionX()+bg.getWidth()){
+                                    latest[1] = 1;
+                                }
+                                break;
+                                
+                            case 1:
+                                if(redGhost.getPositionX()+redGhost.getWidth() > bg.getPositionX()){
+                                    latest[1] = 1;
+                                }
+                                break;
+                        }
+                    }
+                    
+                }else if (collision != -1){ //System.out.println("pm: " + collision);
+                    riposiziona(redGhost, collision);
                 }
                 
+                
+                
+                // hKJdjdbsssddd
                 pacman.update(elapsedTime);
                 redGhost.update(elapsedTime);
                 
                 if(pacman.intersects(redGhost)){
-                    isPacmanAlive = false;
+                    soundPlayer.death();
+                    try { Thread.sleep(1000); } catch (InterruptedException ex) {}
+                    gc.setFill(Color.BLACK);
+                    gc.fillRect(0, 0, width, height);
+                    gc.setFill(Color.WHITE);
+                    gc.fillText("GHOSTS WON!", width/2, height/2);
+                    timer.cancel();
+                    goingToTheMall = true;
+                    this.stop();
                 }
                 
-                String s = Integer.toString(score);
-                gc.fillText("SCORE: " + s, 30, 30);
+                else if(score >= 30.0) {
+                    soundPlayer.fruit();
+                    try { Thread.sleep(1000); } catch (InterruptedException ex) {}
+                    gc.setFill(Color.BLACK);
+                    gc.fillRect(0, 0, width, height);
+                    gc.setFill(Color.WHITE);
+                    gc.fillText("PACMAN WON!",  width/2, height/2);
+                    this.stop();
+                }
+                
+                else{
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    String s = df.format(score);
+                    gc.fillText("RUN 30m TO SURVIVE!\nDISTANCE: " + s + "m", 30, 30);
+                }
             }
         }.start();
         

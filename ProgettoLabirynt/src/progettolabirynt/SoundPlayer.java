@@ -3,13 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package progettolabirynt;
-
-import java.io.File;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
@@ -19,7 +12,7 @@ import javafx.scene.media.MediaPlayer;
  * @author HP
  */
 public class SoundPlayer {
-    private MediaPlayer mediaPlayer = null;
+    public MediaPlayer mediaPlayer = null;
     
     private Media chomp = null;
     private Media death = null;
@@ -27,6 +20,7 @@ public class SoundPlayer {
     private Media ghost = null;
     private Media intro = null;
     
+
     public SoundPlayer(){
         chomp = new Media(getClass().getResource("sounds/chomp.wav").toString());
         death = new Media(getClass().getResource("sounds/death.wav").toString());
