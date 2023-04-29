@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -26,11 +24,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -69,7 +65,8 @@ public class ProgettoLabirynt extends Application {
                                     0 = no
                                         . . .
     */
-    private int latest[] = {0, 1}; // both 0, as startup
+    private int latest[] = {0, 1};
+    private int latestGh[] = {0, 1};
     
     public static void main(String[] args) 
     {
@@ -426,8 +423,6 @@ public class ProgettoLabirynt extends Application {
                 // aggiorna il pacman e fantasma
                 pacman.render(gc);
                 redGhost.render(gc);
-                // gc.fillRect(vectBoxGh.getX(), vectBoxGh.getY(), vectBoxGh.getWidth(), vectBoxGh.getHeight());
-                // gc.fillRect(vectBox.getX(), vectBox.getY(), vectBox.getWidth(), vectBox.getHeight());
                 
                 
                 int collision = isColliding(pacman, 0);
@@ -482,44 +477,44 @@ public class ProgettoLabirynt extends Application {
                         && (redGhost.getPositionX() < bg.getPositionX()+10*multiplier || redGhost.getPositionX()+redGhost.getWidth() > bg.getPositionX()+bg.getWidth()-10*multiplier)
                         ){
 
-                    if(latest[1] == 1){
+                    if(latestGh[1] == 1){
                         
                         if(redGhost.getPositionX()+redGhost.getWidth() < bg.getPositionX()){
-                            teleport(pacman, 1, bg.getWidth());
-                            latest[0] = 0;
-                            latest[1] = 0;
+                            teleport(redGhost, 1, bg.getWidth());
+                            latestGh[0] = 0;
+                            latestGh[1] = 0;
                         }
                         
                         else if(redGhost.getPositionX() > bg.getPositionX()+bg.getWidth()){
                             teleport(redGhost, 0, bg.getWidth());
-                            latest[0] = 1;
-                            latest[1] = 0;
+                            latestGh[0] = 1;
+                            latestGh[1] = 0;
                         }
                         
                     }
                     
-                    else if(latest[1] == 0){
+                    else if(latestGh[1] == 0){
                         
                         //  in order to avoid perpetual teleport, lets add an if block to understand
                         //  if pacman has crossed the map already (using 'latest' array (int))          
                         
-                        switch(latest[0]){
+                        switch(latestGh[0]){
                             case 0:
                                 if(redGhost.getPositionX()+redGhost.getWidth() < bg.getPositionX()+bg.getWidth()){
-                                    latest[1] = 1;
+                                    latestGh[1] = 1;
                                 }
                                 break;
                                 
                             case 1:
                                 if(redGhost.getPositionX()+redGhost.getWidth() > bg.getPositionX()){
-                                    latest[1] = 1;
+                                    latestGh[1] = 1;
                                 }
                                 break;
                         }
                     }
                     
-                }else if (collision != -1){ //System.out.println("pm: " + collision);
-                    riposiziona(redGhost, collision);
+                }else if (collisionGh != -1){ //System.out.println("pm: " + collision);
+                    riposiziona(redGhost, collisionGh);
                 }
                 
                 
