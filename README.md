@@ -24,7 +24,7 @@ The 2nd number, represents the wall id (which is a number between 1 and 36)
 
 ### Notes
 #### Original Java code
-``` java:
+``` java
 ...
 
 wallsData[0][0] = 22.0;
@@ -80,7 +80,7 @@ There are a few more methods in it, if you want to checkout them, visit the code
 #### Other walls
 The other walls, such as the bounds ones, don't have a wall id, because they have been treated in a different way.
 Checkout ProgettoLabirynt.java for more info.
-```java:
+```java
     ...
     
     private Rectangle WALL_UP;
