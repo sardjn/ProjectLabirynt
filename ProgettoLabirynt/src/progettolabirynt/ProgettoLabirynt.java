@@ -36,7 +36,7 @@ import javafx.stage.WindowEvent;
  */
 public class ProgettoLabirynt extends Application {
     
-    private final double multiplier = 4.25;
+    private final double multiplier = 1.25;
     private final double dimensions[] = getDimensions();
     private final double bordersX = 70 * multiplier;
     private final double bordersY = 5 * multiplier;
@@ -248,7 +248,7 @@ public class ProgettoLabirynt extends Application {
                     soundPlayer.chomp();
                 }
             }
-        }, 1000, 600);
+        }, 0, 600);
         
         Timer timer2 = new Timer();
         timer2.schedule(new TimerTask() {
@@ -565,7 +565,7 @@ public class ProgettoLabirynt extends Application {
     private void teleport(Sprite a, int x, double distance){
         
         switch(x){
-            case 0: // <--|
+             case 0: // <--|
                 a.setPosition(a.getPositionX()-distance-a.getWidth()*1.5 + 10*multiplier, a.getPositionY());
                 a.setVelocity(speed, 0);
                 break;
